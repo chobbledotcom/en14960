@@ -34,7 +34,6 @@
             fi
 
             echo "Ruby $(ruby --version)"
-            echo "Type 'release' to create a new release"
           '';
         };
       }

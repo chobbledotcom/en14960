@@ -1,5 +1,4 @@
-#!/usr/bin/env nix-shell
-#!nix-shell -i bash -p gh git gnused gnugrep
+#!/usr/bin/env bash
 
 set -euo pipefail
 
@@ -11,13 +10,12 @@ NC='\033[0m' # No Color
 
 # Function to display usage
 usage() {
-    echo "Usage: $0 [major|minor|patch] [optional-tag-message]"
+    echo "Usage: $0 [major|minor|patch]"
     echo ""
     echo "Examples:"
-    echo "  $0 patch                    # Bump patch version (0.1.0 -> 0.1.1)"
-    echo "  $0 minor                    # Bump minor version (0.1.0 -> 0.2.0)"
-    echo "  $0 major                    # Bump major version (0.1.0 -> 1.0.0)"
-    echo "  $0 minor \"Add new feature\" # Bump minor with custom message"
+    echo "  $0 patch    # Bump patch version (0.1.0 -> 0.1.1)"
+    echo "  $0 minor    # Bump minor version (0.1.0 -> 0.2.0)"
+    echo "  $0 major    # Bump major version (0.1.0 -> 1.0.0)"
     exit 1
 }
 
@@ -27,7 +25,6 @@ if [ $# -lt 1 ]; then
 fi
 
 BUMP_TYPE=$1
-TAG_MESSAGE=${2:-""}
 
 # Validate bump type
 if [[ ! "$BUMP_TYPE" =~ ^(major|minor|patch)$ ]]; then
@@ -35,144 +32,59 @@ if [[ ! "$BUMP_TYPE" =~ ^(major|minor|patch)$ ]]; then
     usage
 fi
 
-# Check if working directory is clean
-if [ -n "$(git status --porcelain)" ]; then
-    echo -e "${RED}Error: Working directory is not clean. Please commit or stash changes.${NC}"
+# Check if gh CLI is available
+if ! command -v gh &> /dev/null; then
+    echo -e "${RED}Error: GitHub CLI (gh) is not installed${NC}"
+    echo "Please install it: https://cli.github.com/"
     exit 1
 fi
 
-# Check if current commit has passing CI
-echo "Checking CI status..."
-CURRENT_SHA=$(git rev-parse HEAD)
-
-while true; do
-    CI_STATUS=$(gh run list --commit "$CURRENT_SHA" --limit 1 --json status,conclusion --jq '.[0] | select(.status == "completed") | .conclusion // "pending"')
-    
-    if [ -z "$CI_STATUS" ] || [ "$CI_STATUS" = "pending" ]; then
-        echo -ne "\r${YELLOW}CI is running... waiting${NC}"
-        sleep 5
-    else
-        echo -ne "\r\033[K"  # Clear the line
-        if [ "$CI_STATUS" = "success" ]; then
-            echo -e "${GREEN}✓ CI passed${NC}"
-            break
-        else
-            echo -e "${RED}Error: CI failed for current commit (status: $CI_STATUS)${NC}"
-            echo "Please fix CI failures before releasing"
-            exit 1
-        fi
-    fi
-done
-echo ""
-
-# Pull any changes made by CI (e.g., standardrb auto-fixes)
-echo "Checking for CI-generated changes..."
-git fetch origin main
-LOCAL_SHA=$(git rev-parse HEAD)
-REMOTE_SHA=$(git rev-parse origin/main)
-
-if [ "$LOCAL_SHA" != "$REMOTE_SHA" ]; then
-    echo -e "${YELLOW}CI has made changes, pulling them...${NC}"
-    git pull origin main
-    echo -e "${GREEN}✓ Pulled CI changes${NC}"
-else
-    echo -e "${GREEN}✓ No CI changes to pull${NC}"
-fi
-echo ""
-
-# Get current version from git tags
-LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-CURRENT_VERSION=${LATEST_TAG#v}  # Remove 'v' prefix
-
-# Verify version.rb exists
-VERSION_FILE="lib/en14960/version.rb"
-if [ ! -f "$VERSION_FILE" ]; then
-    echo -e "${RED}Error: Version file not found at $VERSION_FILE${NC}"
+# Check if we're in a git repository
+if ! git rev-parse --git-dir > /dev/null 2>&1; then
+    echo -e "${RED}Error: Not in a git repository${NC}"
     exit 1
 fi
 
-# Parse version components
-IFS='.' read -r -a VERSION_PARTS <<< "$CURRENT_VERSION"
-MAJOR=${VERSION_PARTS[0]}
-MINOR=${VERSION_PARTS[1]}
-PATCH=${VERSION_PARTS[2]}
+# Check if we're authenticated with GitHub
+if ! gh auth status &> /dev/null; then
+    echo -e "${RED}Error: Not authenticated with GitHub${NC}"
+    echo "Please run: gh auth login"
+    exit 1
+fi
 
-# Calculate new version
-case $BUMP_TYPE in
-    major)
-        NEW_VERSION="$((MAJOR + 1)).0.0"
-        ;;
-    minor)
-        NEW_VERSION="${MAJOR}.$((MINOR + 1)).0"
-        ;;
-    patch)
-        NEW_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))"
-        ;;
-esac
+echo -e "${YELLOW}Triggering release workflow for ${BUMP_TYPE} version bump...${NC}"
 
-echo -e "${YELLOW}Current version: $CURRENT_VERSION${NC}"
-echo -e "${GREEN}New version: $NEW_VERSION${NC}"
-echo ""
+# Trigger the workflow and capture the run ID
+RUN_OUTPUT=$(gh workflow run release.yml -f version=$BUMP_TYPE --json 2>&1)
 
-# Update version in version.rb
-TAG_NAME="v$NEW_VERSION"
-sed -i "s/VERSION = \"[^\"]*\"/VERSION = \"$NEW_VERSION\"/" "$VERSION_FILE"
+# Wait a moment for the workflow to start
+sleep 2
 
-# Update Gemfile.lock to reflect new version
-echo "Updating Gemfile.lock..."
-bundle install --quiet
+# Get the latest workflow run ID
+RUN_ID=$(gh run list --workflow=release.yml --limit=1 --json databaseId --jq '.[0].databaseId')
 
-# Commit version change and updated Gemfile.lock
-git add "$VERSION_FILE" Gemfile.lock
-git commit -m "Bump version to $NEW_VERSION"
+if [ -z "$RUN_ID" ]; then
+    echo -e "${RED}Error: Could not find workflow run${NC}"
+    exit 1
+fi
 
-# Create tag
-TAG_NAME="v$NEW_VERSION"
-if [ -n "$TAG_MESSAGE" ]; then
-    git tag -a "$TAG_NAME" -m "$TAG_MESSAGE"
+# Get the repository info
+REPO_INFO=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
+
+# Construct the URL
+WORKFLOW_URL="https://github.com/${REPO_INFO}/actions/runs/${RUN_ID}"
+
+echo -e "${GREEN}✓ Release workflow started!${NC}"
+echo -e "${YELLOW}Opening workflow in browser: ${WORKFLOW_URL}${NC}"
+
+# Open in default browser
+if command -v xdg-open &> /dev/null; then
+    xdg-open "$WORKFLOW_URL"
+elif command -v open &> /dev/null; then
+    open "$WORKFLOW_URL"
+elif command -v start &> /dev/null; then
+    start "$WORKFLOW_URL"
 else
-    git tag -a "$TAG_NAME" -m "Release version $NEW_VERSION"
+    echo -e "${YELLOW}Could not open browser automatically${NC}"
+    echo -e "Please visit: ${WORKFLOW_URL}"
 fi
-
-echo -e "${GREEN}✓ Version bumped to $NEW_VERSION${NC}"
-echo -e "${GREEN}✓ Changes committed${NC}"
-echo -e "${GREEN}✓ Tag $TAG_NAME created${NC}"
-echo ""
-
-# Ask if user wants to push
-read -p "Push to remote? (y/n) " -n 1 -r
-echo ""
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    git push origin main
-    git push origin "$TAG_NAME"
-    echo -e "${GREEN}✓ Pushed to remote${NC}"
-    echo ""
-    
-    # Ask if user wants to create GitHub release
-    read -p "Create GitHub release? (y/n) " -n 1 -r
-    echo ""
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        # Generate release notes from commits since last tag
-        PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
-        if [ -n "$PREV_TAG" ]; then
-            RELEASE_NOTES=$(git log --pretty=format:"- %s" "$PREV_TAG"..HEAD | grep -v "Bump version")
-        else
-            RELEASE_NOTES=$(git log --pretty=format:"- %s" | grep -v "Bump version")
-        fi
-        
-        if [ -z "$RELEASE_NOTES" ]; then
-            RELEASE_NOTES="Release $NEW_VERSION"
-        fi
-        
-        gh release create "$TAG_NAME" \
-            --title "Release $NEW_VERSION" \
-            --notes "$RELEASE_NOTES" \
-            --generate-notes
-            
-        echo -e "${GREEN}✓ GitHub release created${NC}"
-        echo -e "${GREEN}✓ View at: https://github.com/$(gh repo view --json nameWithOwner -q .nameWithOwner)/releases/tag/$TAG_NAME${NC}"
-    fi
-fi
-
-echo ""
-echo -e "${GREEN}Release process complete!${NC}"
