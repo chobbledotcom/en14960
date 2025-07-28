@@ -242,7 +242,7 @@ module EN14960
           0 # No walls required
         when (thresholds[:no_walls_required]..thresholds[:basic_walls])
           user_height # Equal to user height
-        when (thresholds[:basic_walls]..thresholds[:enhanced_walls]), 
+        when (thresholds[:basic_walls]..thresholds[:enhanced_walls]),
              (thresholds[:enhanced_walls]..thresholds[:max_safe_height])
           (user_height * enhanced_multiplier).round(2) # 1.25× user height
         else

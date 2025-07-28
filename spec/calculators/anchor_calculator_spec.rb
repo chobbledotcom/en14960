@@ -78,7 +78,7 @@ RSpec.describe EN14960::Calculators::AnchorCalculator do
 
       it "shows the calculation formulas" do
         result = described_class.calculate(length: 5, width: 4, height: 3)
-        
+
         expect(result.breakdown[2][1]).to match(/^\(\(12 × 114\.0 \* 1\.5\) ÷ 1600\.0 = 2$/)
         expect(result.breakdown[3][1]).to match(/^\(\(15 × 114\.0 \* 1\.5\) ÷ 1600\.0 = 2$/)
       end

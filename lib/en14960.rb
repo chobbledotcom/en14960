@@ -39,8 +39,8 @@ module EN14960
     # @return [CalculatorResponse] Response with wall height requirements
     def calculate_wall_height(platform_height, user_height, has_permanent_roof = nil)
       Calculators::SlideCalculator.calculate_wall_height_requirements(
-        platform_height, 
-        user_height, 
+        platform_height,
+        user_height,
         has_permanent_roof
       )
     end
@@ -53,9 +53,9 @@ module EN14960
     # @return [CalculatorResponse] Response with capacity by user height
     def calculate_user_capacity(length, width, max_user_height = nil, negative_adjustment_area = 0)
       Calculators::UserCapacityCalculator.calculate(
-        length, 
-        width, 
-        max_user_height, 
+        length,
+        width,
+        max_user_height,
         negative_adjustment_area
       )
     end
