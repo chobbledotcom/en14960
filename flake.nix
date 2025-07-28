@@ -26,6 +26,7 @@
           shellHook = ''
             export GEM_HOME=$PWD/.gems
             export PATH=$GEM_HOME/bin:$PATH
+            export PATH=$PWD/bin:$PATH
 
             if [ ! -d ".gems" ]; then
               echo "Installing gems..."
@@ -33,6 +34,7 @@
             fi
 
             echo "Ruby $(ruby --version)"
+            echo "Type 'release' to create a new release"
           '';
         };
       }
