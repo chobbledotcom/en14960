@@ -24,7 +24,7 @@ RSpec.describe EN14960::SourceCode do
       it "includes additional methods in the output" do
         # Test with methods that might call each other
         result = described_class.get_method_source(
-          :calculate_user_capacity, 
+          :calculate_user_capacity,
           EN14960,
           [:calculate_anchors]
         )
@@ -68,10 +68,10 @@ RSpec.describe EN14960::SourceCode do
       it "returns only hash constants from a module" do
         # Create a test module with various constant types
         test_module = Module.new
-        test_module.const_set(:HASH_CONSTANT, { a: 1 }.freeze)
+        test_module.const_set(:HASH_CONSTANT, {a: 1}.freeze)
         test_module.const_set(:STRING_CONSTANT, "test")
         test_module.const_set(:NUMERIC_CONSTANT, 42)
-        
+
         result = described_class.send(:get_module_constants, test_module, :some_method)
         expect(result).to eq([:HASH_CONSTANT])
         expect(result).not_to include(:STRING_CONSTANT, :NUMERIC_CONSTANT)
@@ -200,7 +200,7 @@ RSpec.describe EN14960::SourceCode do
           "  end\n",
           "\n",
           "  def method_two\n",
-          "    2\n",  
+          "    2\n",
           "  end\n",
           "end\n"
         ]
