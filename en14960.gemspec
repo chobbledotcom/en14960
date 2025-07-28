@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary = "BS EN 14960:2019 safety standard calculators for inflatable play equipment"
   spec.description = "A Ruby gem providing calculators and validators for BS EN 14960:2019 - the safety standard for inflatable play equipment. Includes calculations for anchoring requirements, slide safety, user capacity, and material specifications."
   spec.homepage = "https://github.com/chobbledotcom/en14960"
-  spec.license = "AGPL-3.0"
+  spec.license = "AGPL-3.0-or-later"
   spec.required_ruby_version = ">= 3.0.0"
 
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
