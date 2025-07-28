@@ -3,9 +3,9 @@
 module EN14960
   # Data class for calculator responses
   # Provides a consistent structure for all calculator results
-  CalculatorResponse = Data.define(:value, :value_suffix, :breakdown) do
+  class CalculatorResponse < Struct.new(:value, :value_suffix, :breakdown, keyword_init: true)
     def initialize(value:, value_suffix: "", breakdown: [])
-      super
+      super(value: value, value_suffix: value_suffix, breakdown: breakdown)
     end
 
     def to_h
