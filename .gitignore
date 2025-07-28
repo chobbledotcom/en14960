@@ -1,0 +1,4 @@
+.gems/
+.direnv/
+.envrc
+.rspec_status

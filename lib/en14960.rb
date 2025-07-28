@@ -7,6 +7,7 @@ require_relative "en14960/calculators/anchor_calculator"
 require_relative "en14960/calculators/slide_calculator"
 require_relative "en14960/calculators/user_capacity_calculator"
 require_relative "en14960/validators/material_validator"
+require_relative "en14960/source_code"
 
 # EN14960 provides calculators and validators for BS EN 14960:2019
 # the safety standard for inflatable play equipment
