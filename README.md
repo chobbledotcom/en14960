@@ -2,6 +2,8 @@
 
 A Ruby gem providing calculators and validators for BS EN 14960:2019 - the British/European safety standard for inflatable play equipment.
 
+- (gem install en14960)[https://rubygems.org/gems/en14960]
+
 ## Features
 
 - **Anchor Calculations**: Calculate required ground anchors based on dimensions and wind loads
@@ -188,8 +190,3 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/chobbl
 ## License
 
 The gem is available as open source under the terms of the [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.html).
-
-## References
-
-- BS EN 14960:2019 - Inflatable play equipment - Safety requirements and test methods
-- EN 71-3 - Safety of toys - Migration of certain elements
