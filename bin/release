@@ -41,16 +41,14 @@ if [ -n "$(git status --porcelain)" ]; then
     exit 1
 fi
 
-# Get current version from version.rb
+# Get current version from git tags
+LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+CURRENT_VERSION=${LATEST_TAG#v}  # Remove 'v' prefix
+
+# Verify version.rb exists
 VERSION_FILE="lib/en14960/version.rb"
 if [ ! -f "$VERSION_FILE" ]; then
     echo -e "${RED}Error: Version file not found at $VERSION_FILE${NC}"
-    exit 1
-fi
-
-CURRENT_VERSION=$(grep -oP 'VERSION = "\K[^"]+' "$VERSION_FILE")
-if [ -z "$CURRENT_VERSION" ]; then
-    echo -e "${RED}Error: Could not extract version from $VERSION_FILE${NC}"
     exit 1
 fi
 
@@ -78,7 +76,8 @@ echo -e "${GREEN}New version: $NEW_VERSION${NC}"
 echo ""
 
 # Update version in version.rb
-sed -i "s/VERSION = \"$CURRENT_VERSION\"/VERSION = \"$NEW_VERSION\"/" "$VERSION_FILE"
+TAG_NAME="v$NEW_VERSION"
+sed -i "s/VERSION = \"[^\"]*\"/VERSION = \"$NEW_VERSION\"/" "$VERSION_FILE"
 
 # Commit version change
 git add "$VERSION_FILE"
