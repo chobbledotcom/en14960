@@ -41,6 +41,30 @@ if [ -n "$(git status --porcelain)" ]; then
     exit 1
 fi
 
+# Check if current commit has passing CI
+echo "Checking CI status..."
+CURRENT_SHA=$(git rev-parse HEAD)
+
+while true; do
+    CI_STATUS=$(gh run list --commit "$CURRENT_SHA" --limit 1 --json status,conclusion --jq '.[0] | select(.status == "completed") | .conclusion // "pending"')
+    
+    if [ -z "$CI_STATUS" ] || [ "$CI_STATUS" = "pending" ]; then
+        echo -ne "\r${YELLOW}CI is running... waiting${NC}"
+        sleep 5
+    else
+        echo -ne "\r\033[K"  # Clear the line
+        if [ "$CI_STATUS" = "success" ]; then
+            echo -e "${GREEN}✓ CI passed${NC}"
+            break
+        else
+            echo -e "${RED}Error: CI failed for current commit (status: $CI_STATUS)${NC}"
+            echo "Please fix CI failures before releasing"
+            exit 1
+        fi
+    fi
+done
+echo ""
+
 # Get current version from git tags
 LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
 CURRENT_VERSION=${LATEST_TAG#v}  # Remove 'v' prefix
@@ -79,8 +103,12 @@ echo ""
 TAG_NAME="v$NEW_VERSION"
 sed -i "s/VERSION = \"[^\"]*\"/VERSION = \"$NEW_VERSION\"/" "$VERSION_FILE"
 
-# Commit version change
-git add "$VERSION_FILE"
+# Update Gemfile.lock to reflect new version
+echo "Updating Gemfile.lock..."
+bundle install --quiet
+
+# Commit version change and updated Gemfile.lock
+git add "$VERSION_FILE" Gemfile.lock
 git commit -m "Bump version to $NEW_VERSION"
 
 # Create tag
