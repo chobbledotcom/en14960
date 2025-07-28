@@ -78,6 +78,7 @@ jobs:
       - name: Update version
         run: |
           sed -i 's/VERSION = "[^"]*"/VERSION = "${{ steps.new.outputs.version }}"/' lib/en14960/version.rb
+          bundle config set frozen false
           bundle install
       
       - name: Commit version bump

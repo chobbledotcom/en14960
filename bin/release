@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#!/usr/bin/env nix-shell
+#!nix-shell -i bash -p gh
 
 set -euo pipefail
 
@@ -52,39 +53,50 @@ if ! gh auth status &> /dev/null; then
     exit 1
 fi
 
-echo -e "${YELLOW}Triggering release workflow for ${BUMP_TYPE} version bump...${NC}"
+echo -e "${YELLOW}Triggering ${BUMP_TYPE} release...${NC}"
 
-# Trigger the workflow and capture the run ID
-RUN_OUTPUT=$(gh workflow run release.yml -f version=$BUMP_TYPE --json 2>&1)
+# Trigger the workflow (suppress the gh output)
+if ! gh workflow run release.yml -f version=$BUMP_TYPE >/dev/null 2>&1; then
+    echo -e "${RED}Error: Failed to trigger workflow${NC}"
+    echo "Make sure you're in the correct repository and the release.yml workflow exists"
+    exit 1
+fi
 
 # Wait a moment for the workflow to start
-sleep 2
+sleep 3
 
 # Get the latest workflow run ID
-RUN_ID=$(gh run list --workflow=release.yml --limit=1 --json databaseId --jq '.[0].databaseId')
+RUN_ID=$(gh run list --workflow=release.yml --limit=1 --json databaseId --jq '.[0].databaseId' 2>/dev/null)
 
 if [ -z "$RUN_ID" ]; then
     echo -e "${RED}Error: Could not find workflow run${NC}"
+    echo "The workflow may not have started yet, or there might be an issue with permissions"
     exit 1
 fi
 
 # Get the repository info
-REPO_INFO=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
+REPO_INFO=$(gh repo view --json nameWithOwner --jq .nameWithOwner 2>/dev/null)
 
 # Construct the URL
 WORKFLOW_URL="https://github.com/${REPO_INFO}/actions/runs/${RUN_ID}"
 
-echo -e "${GREEN}✓ Release workflow started!${NC}"
-echo -e "${YELLOW}Opening workflow in browser: ${WORKFLOW_URL}${NC}"
+echo -e "${GREEN}✓ Release workflow started${NC}"
+echo ""
+echo "URL: $WORKFLOW_URL"
+echo ""
 
-# Open in default browser
+# Open in default browser (suppress output)
+BROWSER_OPENED=false
 if command -v xdg-open &> /dev/null; then
-    xdg-open "$WORKFLOW_URL"
+    xdg-open "$WORKFLOW_URL" 2>/dev/null && BROWSER_OPENED=true
 elif command -v open &> /dev/null; then
-    open "$WORKFLOW_URL"
+    open "$WORKFLOW_URL" 2>/dev/null && BROWSER_OPENED=true
 elif command -v start &> /dev/null; then
-    start "$WORKFLOW_URL"
+    start "$WORKFLOW_URL" 2>/dev/null && BROWSER_OPENED=true
+fi
+
+if [ "$BROWSER_OPENED" = true ]; then
+    echo -e "${GREEN}✓ Opened in browser${NC}"
 else
-    echo -e "${YELLOW}Could not open browser automatically${NC}"
-    echo -e "Please visit: ${WORKFLOW_URL}"
+    echo -e "${YELLOW}Please open the URL above in your browser to monitor progress${NC}"
 fi
