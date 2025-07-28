@@ -5,7 +5,7 @@ module EN14960
   # Provides a consistent structure for all calculator results
   class CalculatorResponse < Struct.new(:value, :value_suffix, :breakdown, keyword_init: true)
     def initialize(value:, value_suffix: "", breakdown: [])
-      super(value: value, value_suffix: value_suffix, breakdown: breakdown)
+      super
     end
 
     def to_h
