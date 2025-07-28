@@ -97,3 +97,17 @@ jobs:
       
       - name: Publish to RubyGems
         uses: rubygems/release-gem@v1
+      
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.new.outputs.version }}
+          release_name: Release ${{ steps.new.outputs.version }}
+          body: |
+            # v${{ steps.new.outputs.version }}.
+            
+            [Read the full changelog here](https://github.com/${{ github.repository }}/compare/v${{ steps.current.outputs.version }}...v${{ steps.new.outputs.version }})
+          draft: false
+          prerelease: false
