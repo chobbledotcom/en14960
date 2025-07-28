@@ -2,7 +2,7 @@
 
 A Ruby gem providing calculators and validators for BS EN 14960:2019 - the British/European safety standard for inflatable play equipment.
 
-- [gem install en14960](https://rubygems.org/gems/en14960]
+- (gem install en14960)[https://rubygems.org/gems/en14960]
 
 ## Features
 
