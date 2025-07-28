@@ -65,6 +65,21 @@ while true; do
 done
 echo ""
 
+# Pull any changes made by CI (e.g., standardrb auto-fixes)
+echo "Checking for CI-generated changes..."
+git fetch origin main
+LOCAL_SHA=$(git rev-parse HEAD)
+REMOTE_SHA=$(git rev-parse origin/main)
+
+if [ "$LOCAL_SHA" != "$REMOTE_SHA" ]; then
+    echo -e "${YELLOW}CI has made changes, pulling them...${NC}"
+    git pull origin main
+    echo -e "${GREEN}✓ Pulled CI changes${NC}"
+else
+    echo -e "${GREEN}✓ No CI changes to pull${NC}"
+fi
+echo ""
+
 # Get current version from git tags
 LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
 CURRENT_VERSION=${LATEST_TAG#v}  # Remove 'v' prefix

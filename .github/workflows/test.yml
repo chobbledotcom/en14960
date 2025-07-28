@@ -25,6 +25,3 @@ jobs:
 
       - name: Run tests
         run: bundle exec rspec
-
-      - name: Run linter
-        run: bundle exec standardrb
