@@ -1,0 +1,82 @@
+# frozen_string_literal: true
+
+require_relative "en14960/version"
+require_relative "en14960/models/calculator_response"
+require_relative "en14960/constants"
+require_relative "en14960/calculators/anchor_calculator"
+require_relative "en14960/calculators/slide_calculator"
+require_relative "en14960/calculators/user_capacity_calculator"
+require_relative "en14960/validators/material_validator"
+
+# EN14960 provides calculators and validators for BS EN 14960:2019
+# the safety standard for inflatable play equipment
+module EN14960
+  class Error < StandardError; end
+
+  # Public API methods for easy access to calculators
+  class << self
+    # Calculate required anchors for inflatable play equipment
+    # @param length [Float] Length in meters
+    # @param width [Float] Width in meters
+    # @param height [Float] Height in meters
+    # @return [CalculatorResponse] Response with anchor count and breakdown
+    def calculate_anchors(length:, width:, height:)
+      Calculators::AnchorCalculator.calculate(length: length, width: width, height: height)
+    end
+
+    # Calculate required slide runout distance
+    # @param platform_height [Float] Platform height in meters
+    # @param has_stop_wall [Boolean] Whether a stop wall is fitted
+    # @return [CalculatorResponse] Response with runout distance and breakdown
+    def calculate_slide_runout(platform_height, has_stop_wall: false)
+      Calculators::SlideCalculator.calculate_required_runout(platform_height, has_stop_wall: has_stop_wall)
+    end
+
+    # Calculate wall height requirements for slides
+    # @param platform_height [Float] Platform height in meters
+    # @param user_height [Float] Maximum user height in meters
+    # @param has_permanent_roof [Boolean] Whether unit has permanent roof
+    # @return [CalculatorResponse] Response with wall height requirements
+    def calculate_wall_height(platform_height, user_height, has_permanent_roof = nil)
+      Calculators::SlideCalculator.calculate_wall_height_requirements(
+        platform_height, 
+        user_height, 
+        has_permanent_roof
+      )
+    end
+
+    # Calculate user capacity based on play area
+    # @param length [Float] Length in meters
+    # @param width [Float] Width in meters
+    # @param max_user_height [Float, nil] Maximum allowed user height
+    # @param negative_adjustment_area [Float] Area to subtract for obstacles
+    # @return [CalculatorResponse] Response with capacity by user height
+    def calculate_user_capacity(length, width, max_user_height = nil, negative_adjustment_area = 0)
+      Calculators::UserCapacityCalculator.calculate(
+        length, 
+        width, 
+        max_user_height, 
+        negative_adjustment_area
+      )
+    end
+
+    # Check if rope diameter meets safety requirements
+    # @param diameter_mm [Float] Rope diameter in millimeters
+    # @return [Boolean] Whether diameter is within safe range
+    def valid_rope_diameter?(diameter_mm)
+      Validators::MaterialValidator.valid_rope_diameter?(diameter_mm)
+    end
+
+    # Get height categories defined by EN 14960:2019
+    # @return [Hash] Height categories with labels and requirements
+    def height_categories
+      Constants::HEIGHT_CATEGORIES
+    end
+
+    # Get material standards defined by EN 14960:2019
+    # @return [Hash] Material requirements for fabrics, threads, ropes, and netting
+    def material_standards
+      Constants::MATERIAL_STANDARDS
+    end
+  end
+end
