@@ -6,7 +6,7 @@ RSpec.describe EN14960::Constants do
   describe "USER_CAPACITY_CONSTANTS" do
     it "requires more space per user as height increases" do
       constants = described_class::USER_CAPACITY_CONSTANTS
-      
+
       expect(constants[:space_per_user_1000mm]).to be < constants[:space_per_user_1200mm]
       expect(constants[:space_per_user_1200mm]).to be < constants[:space_per_user_1500mm]
       expect(constants[:space_per_user_1500mm]).to be < constants[:space_per_user_1800mm]
@@ -16,7 +16,7 @@ RSpec.describe EN14960::Constants do
   describe "SLIDE_HEIGHT_THRESHOLDS" do
     it "has progressively stricter requirements at greater heights" do
       thresholds = described_class::SLIDE_HEIGHT_THRESHOLDS
-      
+
       expect(thresholds[:no_walls_required]).to be < thresholds[:basic_walls]
       expect(thresholds[:basic_walls]).to be < thresholds[:enhanced_walls]
       expect(thresholds[:enhanced_walls]).to be < thresholds[:max_safe_height]
