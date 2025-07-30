@@ -66,6 +66,14 @@ module EN14960
       1800 => 2.0    # 0.5 users per m² for 1.8m height
     }.freeze
 
+    # User capacity constants - space required per user by height
+    USER_CAPACITY_CONSTANTS = {
+      space_per_user_1000mm: 1.0,   # 1 m² per user for 1.0m height
+      space_per_user_1200mm: 1.33,  # 1.33 m² per user for 1.2m height
+      space_per_user_1500mm: 1.66,  # 1.66 m² per user for 1.5m height
+      space_per_user_1800mm: 2.0    # 2 m² per user for 1.8m height
+    }.freeze
+
     # Material safety standards (EN 14960:2019 & EN 71-3)
     MATERIAL_STANDARDS = {
       fabric: {
