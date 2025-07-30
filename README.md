@@ -27,6 +27,27 @@ Or install it yourself as:
 
     $ gem install en14960
 
+## Live JS Ruby Environment
+
+You can run this Gem on [RubyRuby.dev](https://runruby.dev) - just create a Gemfile with these contents:
+
+```ruby
+source "https://rubygems.org"
+gem "en14960"
+```
+
+And then you can test the calculations like:
+
+```ruby
+result = EN14960.calculate_anchors(
+    length: 5,
+    width: 4,
+    height: 3
+)
+puts result.value  # => 8
+puts result.breakdown
+```
+
 ## Usage
 
 ### Anchor Calculations
@@ -164,24 +185,6 @@ This gem implements calculations based on BS EN 14960:2019, including:
 After checking out the repo, run `bundle install` to install dependencies. Then, run `bundle exec rspec` to run the tests.
 
 To install this gem onto your local machine, run `bundle exec rake install`.
-
-## Releasing
-
-This gem uses GitHub Actions for automated releases to RubyGems.
-
-To release a new version:
-
-1. Update the version number in `lib/en14960/version.rb`
-2. Commit the change: `git commit -am "Bump version to x.y.z"`
-3. Create a tag: `git tag -a vx.y.z -m "Release version x.y.z"`
-4. Push the tag: `git push origin vx.y.z`
-
-The GitHub Action will automatically:
-- Build the gem
-- Publish it to RubyGems
-- Create a GitHub release with the gem file attached
-
-**Note**: You need to set up RubyGems authentication in your GitHub repository settings. Add a repository secret named `GEM_HOST_API_KEY` with your RubyGems API key.
 
 ## Contributing
 
