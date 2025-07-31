@@ -52,7 +52,7 @@ module EN14960
           ["Sides area", "#{length}m (L) × #{height}m (H) = #{sides_area}m²"],
           ["Front & back anchor counts", formula_front],
           ["Left & right anchor counts", formula_sides],
-          ["Required anchors", "(#{required_front} + #{required_sides}) × 2 = #{calculated_total}"]
+          ["Calculated total anchors", "(#{required_front} + #{required_sides}) × 2 = #{calculated_total}"]
         ]
 
         # Add minimum requirement note if applicable

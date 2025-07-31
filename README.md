@@ -63,7 +63,7 @@ puts result.breakdown
 #   ["Sides area", "5m (L) × 3m (H) = 15m²"],
 #   ["Front & back anchor counts", "((12.0 × 114.0 * 1.5) ÷ 1600.0 = 2"],
 #   ["Left & right anchor counts", "((15.0 × 114.0 * 1.5) ÷ 1600.0 = 2"],
-#   ["Required anchors", "(2 + 2) × 2 = 8"]
+#   ["Calculated total anchors", "(2 + 2) × 2 = 8"]
 # ]
 ```
 
@@ -140,8 +140,8 @@ You can also use the calculator modules directly:
 ```ruby
 # Using AnchorCalculator directly
 result = EN14960::Calculators::AnchorCalculator.calculate(
-  length: 10, 
-  width: 8, 
+  length: 10,
+  width: 8,
   height: 4
 )
 

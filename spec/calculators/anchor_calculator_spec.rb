@@ -123,7 +123,7 @@ RSpec.describe EN14960::Calculators::AnchorCalculator do
 
         breakdown = result.breakdown
         expect(breakdown[4]).to eq(
-          ["Required anchors", "(2 + 2) × 2 = 8"]
+          ["Calculated total anchors", "(2 + 2) × 2 = 8"]
         )
       end
     end
