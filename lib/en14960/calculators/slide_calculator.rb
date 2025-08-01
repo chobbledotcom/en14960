@@ -159,8 +159,15 @@ module EN14960
             end
           end
 
+          # Skip wall height requirement message if permanent roof is present
+          text = if has_permanent_roof
+            "Permanent roof fitted - wall height requirement satisfied"
+          else
+            "Walls must be at least #{required_height}m (1.25× user height)"
+          end
+
           {
-            text: "Walls must be at least #{required_height}m (1.25× user height)",
+            text: text,
             breakdown: breakdown
           }
         when (thresholds[:enhanced_walls]..thresholds[:max_safe_height])

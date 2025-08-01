@@ -155,7 +155,7 @@ RSpec.describe EN14960::Calculators::SlideCalculator do
         4.0, 2.0, true
       )
 
-      expect(result[:text]).to include("2.5m")
+      expect(result[:text]).to eq("Permanent roof fitted - wall height requirement satisfied")
       expect(result[:breakdown]).to include(
         ["Permanent roof", "Fitted ✓"]
       )
@@ -170,6 +170,17 @@ RSpec.describe EN14960::Calculators::SlideCalculator do
       expect(result[:breakdown]).to include(
         ["Permanent roof", "Not fitted ✗"]
       )
+    end
+
+    it "shows wall height requirement when permanent roof status is unknown" do
+      result = described_class.get_wall_height_requirement_details(
+        4.0, 2.0, nil
+      )
+
+      expect(result[:text]).to include("2.5m")
+      expect(result[:text]).to include("1.25× user height")
+      expect(result[:breakdown]).not_to include(["Permanent roof", "Fitted ✓"])
+      expect(result[:breakdown]).not_to include(["Permanent roof", "Not fitted ✗"])
     end
   end
 
