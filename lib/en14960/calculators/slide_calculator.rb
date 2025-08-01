@@ -144,7 +144,7 @@ module EN14960
           }
         when (thresholds[:basic_walls]..thresholds[:enhanced_walls])
           required_height = (user_height * enhanced_multiplier).round(2)
-          
+
           # Skip wall height requirement message if permanent roof is present
           if has_permanent_roof
             breakdown = [
@@ -160,12 +160,12 @@ module EN14960
               ["Calculation", "#{user_height}m × #{enhanced_multiplier} = #{required_height}m"],
               ["Alternative requirement", "Permanent roof (can replace heightened walls)"]
             ]
-            
+
             # Add roof status if known
             if !has_permanent_roof.nil?
               breakdown << ["Permanent roof", "Not fitted ✗"]
             end
-            
+
             text = "Walls must be at least #{required_height}m (1.25× user height)"
           end
 
