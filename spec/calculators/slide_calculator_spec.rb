@@ -134,6 +134,35 @@ RSpec.describe EN14960::Calculators::SlideCalculator do
         breakdown_text = result.breakdown.map(&:last).join(" ")
         expect(breakdown_text).not_to include("Permanent roof")
       end
+
+      context "when permanent roof is fitted" do
+        it "shows skipped wall requirement in breakdown for 3-6m platforms" do
+          result = described_class.calculate_wall_height_requirements(4.0, 2.0, true)
+
+          expect(result.breakdown).to include(
+            ["Wall requirement", "2.5m (1.25× user height) - skipped due to permanent roof"]
+          )
+          expect(result.breakdown).to include(["Permanent roof", "Fitted ✓"])
+        end
+
+        it "still returns the calculated wall height value" do
+          result = described_class.calculate_wall_height_requirements(4.0, 2.0, true)
+
+          expect(result.value).to eq(2.5)
+          expect(result.value_suffix).to eq("m")
+        end
+      end
+
+      context "when permanent roof is not fitted" do
+        it "shows standard wall requirement for 3-6m platforms" do
+          result = described_class.calculate_wall_height_requirements(4.0, 2.0, false)
+
+          expect(result.breakdown).to include(
+            ["Calculation", "2.0m × 1.25 = 2.5m"]
+          )
+          expect(result.breakdown).to include(["Permanent roof", "Not fitted ✗"])
+        end
+      end
     end
 
     context "edge cases" do
@@ -150,37 +179,72 @@ RSpec.describe EN14960::Calculators::SlideCalculator do
   end
 
   describe ".get_wall_height_requirement_details" do
-    it "returns detailed requirements with permanent roof status" do
-      result = described_class.get_wall_height_requirement_details(
-        4.0, 2.0, true
-      )
+    context "for platforms between 3.0m and 6.0m" do
+      context "with permanent roof fitted" do
+        it "skips wall height requirement message" do
+          result = described_class.get_wall_height_requirement_details(4.0, 2.0, true)
 
-      expect(result[:text]).to eq("Permanent roof fitted - wall height requirement satisfied")
-      expect(result[:breakdown]).to include(
-        ["Permanent roof", "Fitted ✓"]
-      )
+          expect(result[:text]).to eq("Permanent roof fitted - wall height requirement satisfied")
+          expect(result[:text]).not_to include("Walls must be at least")
+        end
+
+        it "shows wall requirement was skipped in breakdown" do
+          result = described_class.get_wall_height_requirement_details(4.0, 2.0, true)
+
+          expect(result[:breakdown]).to include(
+            ["Wall requirement", "2.5m (1.25× user height) - skipped due to permanent roof"]
+          )
+          expect(result[:breakdown]).to include(["Permanent roof", "Fitted ✓"])
+        end
+
+        it "calculates correct skipped wall height for different user heights" do
+          result = described_class.get_wall_height_requirement_details(5.0, 1.6, true)
+
+          expect(result[:breakdown]).to include(
+            ["Wall requirement", "2.0m (1.25× user height) - skipped due to permanent roof"]
+          )
+        end
+      end
+
+      context "without permanent roof" do
+        it "shows wall height requirement" do
+          result = described_class.get_wall_height_requirement_details(4.0, 2.0, false)
+
+          expect(result[:text]).to eq("Walls must be at least 2.5m (1.25× user height)")
+          expect(result[:breakdown]).to include(["Permanent roof", "Not fitted ✗"])
+        end
+      end
+
+      context "with unknown permanent roof status" do
+        it "shows wall height requirement without roof status" do
+          result = described_class.get_wall_height_requirement_details(4.0, 2.0, nil)
+
+          expect(result[:text]).to eq("Walls must be at least 2.5m (1.25× user height)")
+          expect(result[:breakdown]).not_to include(["Permanent roof", "Fitted ✓"])
+          expect(result[:breakdown]).not_to include(["Permanent roof", "Not fitted ✗"])
+        end
+      end
     end
 
-    it "shows requirement not met when walls too low" do
-      result = described_class.get_wall_height_requirement_details(
-        4.0, 2.0, false
-      )
+    context "for platforms under 3.0m" do
+      it "is not affected by permanent roof status" do
+        result_with_roof = described_class.get_wall_height_requirement_details(2.0, 1.5, true)
+        result_without_roof = described_class.get_wall_height_requirement_details(2.0, 1.5, false)
 
-      expect(result[:text]).to include("2.5m")
-      expect(result[:breakdown]).to include(
-        ["Permanent roof", "Not fitted ✗"]
-      )
+        expect(result_with_roof[:text]).to eq("Walls must be at least 1.5m (equal to user height)")
+        expect(result_without_roof[:text]).to eq("Walls must be at least 1.5m (equal to user height)")
+      end
     end
 
-    it "shows wall height requirement when permanent roof status is unknown" do
-      result = described_class.get_wall_height_requirement_details(
-        4.0, 2.0, nil
-      )
+    context "for platforms over 6.0m" do
+      it "requires both walls and permanent roof" do
+        result = described_class.get_wall_height_requirement_details(7.0, 2.0, true)
 
-      expect(result[:text]).to include("2.5m")
-      expect(result[:text]).to include("1.25× user height")
-      expect(result[:breakdown]).not_to include(["Permanent roof", "Fitted ✓"])
-      expect(result[:breakdown]).not_to include(["Permanent roof", "Not fitted ✗"])
+        expect(result[:text]).to include("2.5m + permanent roof required")
+        expect(result[:breakdown]).to include(
+          ["Permanent roof", "Required and fitted ✓"]
+        )
+      end
     end
   end
 

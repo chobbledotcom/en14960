@@ -144,26 +144,29 @@ module EN14960
           }
         when (thresholds[:basic_walls]..thresholds[:enhanced_walls])
           required_height = (user_height * enhanced_multiplier).round(2)
-          breakdown = [
-            ["Height range", "3.0m - 6.0m"],
-            ["Calculation", "#{user_height}m × #{enhanced_multiplier} = #{required_height}m"],
-            ["Alternative requirement", "Permanent roof (can replace heightened walls)"]
-          ]
-
-          # Add roof status if known
-          if !has_permanent_roof.nil?
-            breakdown << if has_permanent_roof
-              ["Permanent roof", "Fitted ✓"]
-            else
-              ["Permanent roof", "Not fitted ✗"]
-            end
-          end
-
+          
           # Skip wall height requirement message if permanent roof is present
-          text = if has_permanent_roof
-            "Permanent roof fitted - wall height requirement satisfied"
+          if has_permanent_roof
+            breakdown = [
+              ["Height range", "3.0m - 6.0m"],
+              ["Wall requirement", "#{required_height}m (1.25× user height) - skipped due to permanent roof"],
+              ["Alternative requirement", "Permanent roof (can replace heightened walls)"],
+              ["Permanent roof", "Fitted ✓"]
+            ]
+            text = "Permanent roof fitted - wall height requirement satisfied"
           else
-            "Walls must be at least #{required_height}m (1.25× user height)"
+            breakdown = [
+              ["Height range", "3.0m - 6.0m"],
+              ["Calculation", "#{user_height}m × #{enhanced_multiplier} = #{required_height}m"],
+              ["Alternative requirement", "Permanent roof (can replace heightened walls)"]
+            ]
+            
+            # Add roof status if known
+            if !has_permanent_roof.nil?
+              breakdown << ["Permanent roof", "Not fitted ✗"]
+            end
+            
+            text = "Walls must be at least #{required_height}m (1.25× user height)"
           end
 
           {
