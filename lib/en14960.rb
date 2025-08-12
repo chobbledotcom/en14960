@@ -83,15 +83,21 @@ module EN14960
 
     # Validate play area measurements
     # @param unit_length [Float] Unit length
-    # @param unit_height [Float] Unit height
+    # @param unit_width [Float] Unit width
     # @param play_area_length [Float] Play area length
     # @param play_area_width [Float] Play area width
     # @param negative_adjustment_area [Float] Negative adjustment area
     # @return [Hash] Validation result with errors and measurements
-    def validate_play_area(unit_length:, unit_height:, play_area_length:, play_area_width:, negative_adjustment_area:)
+    def validate_play_area(
+      unit_length:,
+      unit_width:,
+      play_area_length:,
+      play_area_width:,
+      negative_adjustment_area:
+    )
       Validators::PlayAreaValidator.validate(
         unit_length: unit_length,
-        unit_height: unit_height,
+        unit_width: unit_width,
         play_area_length: play_area_length,
         play_area_width: play_area_width,
         negative_adjustment_area: negative_adjustment_area
