@@ -5,32 +5,40 @@ module EN14960
     module PlayAreaValidator
       extend self
 
-      def validate(unit_length:, unit_height:, play_area_length:, play_area_width:, negative_adjustment_area:)
+      def validate(
+        unit_length:,
+        unit_width:,
+        play_area_length:,
+        play_area_width:,
+        negative_adjustment_area:
+      )
         errors = []
 
-        # Check for nil values
-        if [unit_length, unit_height, play_area_length, play_area_width, negative_adjustment_area].any?(&:nil?)
-          errors << "All measurements must be provided (non-nil)"
+        if [
+          unit_length,
+          unit_width,
+          play_area_length,
+          play_area_width,
+          negative_adjustment_area
+        ].any?(&:nil?)
+          errors << "All measurements must be provided"
         end
 
-        # Return early if we have nil values
         return build_response(false, errors) unless errors.empty?
 
-        # Convert all to floats for comparison
         unit_length = unit_length.to_f
-        unit_height = unit_height.to_f
+        unit_width = unit_width.to_f
         play_area_length = play_area_length.to_f
         play_area_width = play_area_width.to_f
         negative_adjustment_area = negative_adjustment_area.to_f
 
-        # Check play area length is less than unit height
-        if play_area_length >= unit_height
-          errors << "Play area length (#{play_area_length}) must be less than unit height (#{unit_height})"
+        if play_area_length > unit_length
+          errors << "Play area length (#{play_area_length}) must be less than or equal to unit length (#{unit_length})"
         end
 
-        # Check play area width is less than unit length
-        if play_area_width >= unit_length
-          errors << "Play area width (#{play_area_width}) must be less than unit length (#{unit_length})"
+        # Check play area width is less than unit width
+        if play_area_width > unit_width
+          errors << "Play area width (#{play_area_width}) must be less than or equal to unit width (#{unit_width})"
         end
 
         # Calculate total play area
@@ -43,7 +51,7 @@ module EN14960
 
         build_response(errors.empty?, errors, {
           unit_length: unit_length,
-          unit_height: unit_height,
+          unit_width: unit_width,
           play_area_length: play_area_length,
           play_area_width: play_area_width,
           total_play_area: total_play_area,
