@@ -1,15 +1,19 @@
 # frozen_string_literal: true
+# typed: strict
 
+require "sorbet-runtime"
 require_relative "../constants"
 require_relative "../models/calculator_response"
 
 module EN14960
   module Calculators
     module UserCapacityCalculator
+      extend T::Sig
       extend self
 
+      sig { params(length: Float, width: Float, max_user_height: T.nilable(Float), negative_adjustment_area: Float).returns(CalculatorResponse) }
       def calculate(length, width, max_user_height = nil, negative_adjustment_area = 0)
-        return default_result if length.nil? || width.nil?
+        return default_result if length <= 0 || width <= 0
 
         total_area = (length * width).round(2)
         negative_adjustment_area = negative_adjustment_area.to_f.abs
@@ -27,6 +31,7 @@ module EN14960
 
       private
 
+      sig { params(length: Float, width: Float, total_area: Float, negative_adjustment_area: Float, usable_area: Float).returns(T::Array[T::Array[String]]) }
       def build_breakdown(length, width, total_area, negative_adjustment_area, usable_area)
         breakdown = []
         formatted_length = format_number(length)
@@ -47,6 +52,7 @@ module EN14960
         breakdown
       end
 
+      sig { params(usable_area: Float, max_user_height: T.nilable(Float), breakdown: T::Array[T::Array[String]]).returns(T::Hash[Symbol, Integer]) }
       def calculate_capacities(usable_area, max_user_height, breakdown)
         capacities = {}
 
@@ -71,6 +77,7 @@ module EN14960
         capacities
       end
 
+      sig { returns(CalculatorResponse) }
       def default_result
         CalculatorResponse.new(
           value: default_capacity,
@@ -79,6 +86,7 @@ module EN14960
         )
       end
 
+      sig { returns(T::Hash[Symbol, Integer]) }
       def default_capacity
         {
           users_1000mm: 0,
@@ -88,6 +96,7 @@ module EN14960
         }
       end
 
+      sig { params(number: Float).returns(String) }
       def format_number(number)
         # Remove trailing zeros after decimal point
         formatted = sprintf("%.1f", number)

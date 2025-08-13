@@ -1,13 +1,19 @@
 # frozen_string_literal: true
+# typed: strict
+
+require "sorbet-runtime"
 
 module EN14960
   # Data class for calculator responses
   # Provides a consistent structure for all calculator results
-  CalculatorResponse = Data.define(:value, :value_suffix, :breakdown) do
-    def initialize(value:, value_suffix: "", breakdown: [])
-      super
-    end
+  class CalculatorResponse < T::Struct
+    extend T::Sig
 
+    const :value, T.any(Integer, Float, String, T::Hash[Symbol, Integer], T::Array[T.untyped])
+    const :value_suffix, String, default: ""
+    const :breakdown, T::Array[T::Array[String]], default: []
+
+    sig { returns(T::Hash[Symbol, T.untyped]) }
     def to_h
       {
         value: value,
@@ -16,6 +22,9 @@ module EN14960
       }
     end
 
-    alias_method :as_json, :to_h
+    sig { returns(T::Hash[Symbol, T.untyped]) }
+    def as_json
+      to_h
+    end
   end
 end

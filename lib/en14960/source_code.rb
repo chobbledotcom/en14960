@@ -1,7 +1,12 @@
 # frozen_string_literal: true
+# typed: strict
+
+require "sorbet-runtime"
 
 module EN14960
   module SourceCode
+    extend T::Sig
+    sig { params(method_name: Symbol, module_name: Module, additional_methods: T::Array[Symbol]).returns(String) }
     def self.get_method_source(method_name, module_name, additional_methods = [])
       method_obj = module_name.method(method_name)
       source_location = method_obj.source_location
@@ -50,12 +55,14 @@ module EN14960
       output
     end
 
+    sig { params(module_name: Module, method_name: Symbol).returns(T::Array[Symbol]) }
     private_class_method def self.get_module_constants(module_name, method_name)
       module_name.constants.select do |const_name|
         module_name.const_get(const_name).is_a?(Hash)
       end
     end
 
+    sig { params(lines: T::Array[String], constant_name: Symbol).returns(String) }
     private_class_method def self.extract_constant_definition(lines, constant_name)
       constant_lines = []
       in_constant = false
@@ -82,6 +89,7 @@ module EN14960
       constant_lines.join("")
     end
 
+    sig { params(lines: T::Array[String], start_line: Integer, method_name: Symbol).returns(T::Array[String]) }
     private_class_method def self.extract_method_lines(lines, start_line, method_name)
       method_lines = []
       current_line = start_line
@@ -114,6 +122,7 @@ module EN14960
       method_lines
     end
 
+    sig { params(source_code: String).returns(String) }
     private_class_method def self.strip_consistent_indentation(source_code)
       lines = source_code.split("\n")
 

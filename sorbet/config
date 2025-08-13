@@ -1,0 +1,6 @@
+--dir
+.
+--ignore
+vendor/
+--ignore
+spec/
