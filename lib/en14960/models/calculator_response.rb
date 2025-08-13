@@ -8,7 +8,7 @@ module EN14960
   # Provides a consistent structure for all calculator results
   class CalculatorResponse < T::Struct
     extend T::Sig
-    
+
     const :value, T.any(Integer, Float, String, T::Array[T.untyped])
     const :value_suffix, String, default: ""
     const :breakdown, T::Array[T::Array[String]], default: []

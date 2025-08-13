@@ -16,7 +16,7 @@ require_relative "en14960/source_code"
 # the safety standard for inflatable play equipment
 module EN14960
   extend T::Sig
-  
+
   class Error < StandardError; end
 
   # Public API methods for easy access to calculators

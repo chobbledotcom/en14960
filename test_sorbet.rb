@@ -32,7 +32,7 @@ puts "   Result: #{result.value}"
 # Test rope diameter validation
 puts "\n5. Testing rope diameter validation:"
 valid = EN14960.valid_rope_diameter?(25)
-puts "   25mm rope: #{valid ? 'Valid' : 'Invalid'}"
+puts "   25mm rope: #{valid ? "Valid" : "Invalid"}"
 
 # Test play area validation
 puts "\n6. Testing play area validation:"
