@@ -50,7 +50,6 @@ module EN14960
 
       sig { params(mesh_mm: Float, is_roof: T::Boolean).returns(T::Boolean) }
       def valid_netting_mesh?(mesh_mm, is_roof: false)
-
         max_mesh = is_roof ?
           Constants::MATERIAL_STANDARDS[:netting][:max_roof_mesh] :
           Constants::MATERIAL_STANDARDS[:netting][:max_vertical_mesh]
