@@ -10,11 +10,10 @@ module EN14960
       extend T::Sig
       extend self
 
-      sig { params(diameter_mm: T.nilable(T.any(Float, Integer))).returns(T::Boolean) }
+      sig { params(diameter_mm: Float).returns(T::Boolean) }
       def valid_rope_diameter?(diameter_mm)
         # EN 14960:2019 - Rope diameter range prevents finger entrapment while
         # ensuring adequate grip and structural strength
-        return false if diameter_mm.nil?
 
         min_diameter = Constants::MATERIAL_STANDARDS[:rope][:min_diameter]
         max_diameter = Constants::MATERIAL_STANDARDS[:rope][:max_diameter]
@@ -34,27 +33,23 @@ module EN14960
       end
 
       # Additional validation methods
-      sig { params(strength_n: T.nilable(T.any(Float, Integer))).returns(T::Boolean) }
+      sig { params(strength_n: Float).returns(T::Boolean) }
       def valid_fabric_tensile_strength?(strength_n)
-        return false if strength_n.nil?
         strength_n >= Constants::MATERIAL_STANDARDS[:fabric][:min_tensile_strength]
       end
 
-      sig { params(strength_n: T.nilable(T.any(Float, Integer))).returns(T::Boolean) }
+      sig { params(strength_n: Float).returns(T::Boolean) }
       def valid_fabric_tear_strength?(strength_n)
-        return false if strength_n.nil?
         strength_n >= Constants::MATERIAL_STANDARDS[:fabric][:min_tear_strength]
       end
 
-      sig { params(strength_n: T.nilable(T.any(Float, Integer))).returns(T::Boolean) }
+      sig { params(strength_n: Float).returns(T::Boolean) }
       def valid_thread_tensile_strength?(strength_n)
-        return false if strength_n.nil?
         strength_n >= Constants::MATERIAL_STANDARDS[:thread][:min_tensile_strength]
       end
 
-      sig { params(mesh_mm: T.nilable(T.any(Float, Integer)), is_roof: T::Boolean).returns(T::Boolean) }
+      sig { params(mesh_mm: Float, is_roof: T::Boolean).returns(T::Boolean) }
       def valid_netting_mesh?(mesh_mm, is_roof: false)
-        return false if mesh_mm.nil?
 
         max_mesh = is_roof ?
           Constants::MATERIAL_STANDARDS[:netting][:max_roof_mesh] :

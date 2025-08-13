@@ -11,9 +11,9 @@ module EN14960
       extend T::Sig
       extend self
 
-      sig { params(length: T.nilable(T.any(Float, Integer)), width: T.nilable(T.any(Float, Integer)), max_user_height: T.nilable(T.any(Float, Integer)), negative_adjustment_area: T.any(Float, Integer)).returns(CalculatorResponse) }
+      sig { params(length: Float, width: Float, max_user_height: T.nilable(Float), negative_adjustment_area: Float).returns(CalculatorResponse) }
       def calculate(length, width, max_user_height = nil, negative_adjustment_area = 0)
-        return default_result if length.nil? || width.nil?
+        return default_result if length <= 0 || width <= 0
 
         total_area = (length * width).round(2)
         negative_adjustment_area = negative_adjustment_area.to_f.abs
@@ -31,7 +31,7 @@ module EN14960
 
       private
 
-      sig { params(length: T.any(Float, Integer), width: T.any(Float, Integer), total_area: T.any(Float, Integer), negative_adjustment_area: T.any(Float, Integer), usable_area: T.any(Float, Integer)).returns(T::Array[T::Array[String]]) }
+      sig { params(length: Float, width: Float, total_area: Float, negative_adjustment_area: Float, usable_area: Float).returns(T::Array[T::Array[String]]) }
       def build_breakdown(length, width, total_area, negative_adjustment_area, usable_area)
         breakdown = []
         formatted_length = format_number(length)
@@ -52,7 +52,7 @@ module EN14960
         breakdown
       end
 
-      sig { params(usable_area: T.any(Float, Integer), max_user_height: T.nilable(T.any(Float, Integer)), breakdown: T::Array[T::Array[String]]).returns(T::Hash[Symbol, Integer]) }
+      sig { params(usable_area: Float, max_user_height: T.nilable(Float), breakdown: T::Array[T::Array[String]]).returns(T::Hash[Symbol, Integer]) }
       def calculate_capacities(usable_area, max_user_height, breakdown)
         capacities = {}
 
@@ -96,7 +96,7 @@ module EN14960
         }
       end
 
-      sig { params(number: T.any(Float, Integer)).returns(String) }
+      sig { params(number: Float).returns(String) }
       def format_number(number)
         # Remove trailing zeros after decimal point
         formatted = sprintf("%.1f", number)

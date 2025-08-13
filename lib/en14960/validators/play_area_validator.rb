@@ -11,11 +11,11 @@ module EN14960
 
       sig {
         params(
-          unit_length: T.nilable(T.any(Float, Integer)),
-          unit_width: T.nilable(T.any(Float, Integer)),
-          play_area_length: T.nilable(T.any(Float, Integer)),
-          play_area_width: T.nilable(T.any(Float, Integer)),
-          negative_adjustment_area: T.nilable(T.any(Float, Integer))
+          unit_length: Float,
+          unit_width: Float,
+          play_area_length: Float,
+          play_area_width: Float,
+          negative_adjustment_area: Float
         ).returns(T::Hash[Symbol, T.untyped])
       }
       def validate(
@@ -27,17 +27,7 @@ module EN14960
       )
         errors = []
 
-        if [
-          unit_length,
-          unit_width,
-          play_area_length,
-          play_area_width,
-          negative_adjustment_area
-        ].any?(&:nil?)
-          errors << "All measurements must be provided"
-        end
-
-        return build_response(false, errors) unless errors.empty?
+        # All parameters are required, no nil checks needed
 
         unit_length = unit_length.to_f
         unit_width = unit_width.to_f
@@ -74,7 +64,7 @@ module EN14960
 
       private
 
-      sig { params(valid: T::Boolean, errors: T::Array[String], measurements: T::Hash[Symbol, T.any(Float, Integer)]).returns(T::Hash[Symbol, T.untyped]) }
+      sig { params(valid: T::Boolean, errors: T::Array[String], measurements: T::Hash[Symbol, Float]).returns(T::Hash[Symbol, T.untyped]) }
       def build_response(valid, errors, measurements = {})
         {
           valid: valid,

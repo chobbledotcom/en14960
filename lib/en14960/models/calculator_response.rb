@@ -9,7 +9,7 @@ module EN14960
   class CalculatorResponse < T::Struct
     extend T::Sig
 
-    const :value, T.any(Integer, Float, String, T::Array[T.untyped])
+    const :value, T.any(Integer, Float, String, T::Hash[Symbol, Integer], T::Array[T.untyped])
     const :value_suffix, String, default: ""
     const :breakdown, T::Array[T::Array[String]], default: []
 

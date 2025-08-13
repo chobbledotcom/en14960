@@ -11,13 +11,13 @@ module EN14960
       extend T::Sig
       extend self
 
-      sig { params(area_m2: T.nilable(T.any(Float, Integer))).returns(Integer) }
+      sig { params(area_m2: Float).returns(Integer) }
       def calculate_required_anchors(area_m2)
         # EN 14960-1:2019 Annex A (Lines 1175-1210) - Anchor calculation formula
         # Force = 0.5 × Cw × ρ × V² × A
         # Where: Cw = 1.5, ρ = 1.24 kg/m³, V = 11.1 m/s (Lines 1194-1199)
         # Number of anchors = Force / 1600N (Line 450 - each anchor withstands 1600N)
-        return 0 if area_m2.nil? || area_m2 <= 0
+        return 0 if area_m2 <= 0
 
         # Pre-calculated: 0.5 × 1.5 × 1.24 × 11.1² ≈ 114
         area_coeff = Constants::ANCHOR_CALCULATION_CONSTANTS[:area_coefficient]
@@ -27,7 +27,7 @@ module EN14960
         ((area_m2.to_f * area_coeff * safety_mult) / base_div).ceil
       end
 
-      sig { params(length: T.any(Float, Integer), width: T.any(Float, Integer), height: T.any(Float, Integer)).returns(CalculatorResponse) }
+      sig { params(length: Float, width: Float, height: Float).returns(CalculatorResponse) }
       def calculate(length:, width:, height:)
         # EN 14960-1:2019 Lines 1175-1210 (Annex A) - Calculate exposed surface areas
         front_area = (width * height).round(1)

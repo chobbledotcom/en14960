@@ -12,9 +12,9 @@ module EN14960
       extend self
 
       # Simple calculation method that returns just the numeric value
-      sig { params(platform_height: T.nilable(T.any(Float, Integer)), has_stop_wall: T::Boolean).returns(T.any(Float, Integer)) }
+      sig { params(platform_height: Float, has_stop_wall: T::Boolean).returns(Float) }
       def calculate_runout_value(platform_height, has_stop_wall: false)
-        return 0 if platform_height.nil? || platform_height <= 0
+        return 0 if platform_height <= 0
 
         height_ratio = Constants::RUNOUT_CALCULATION_CONSTANTS[:platform_height_ratio]
         minimum_runout = Constants::RUNOUT_CALCULATION_CONSTANTS[:minimum_runout_meters]
@@ -26,14 +26,14 @@ module EN14960
         has_stop_wall ? base_runout + stop_wall_add : base_runout
       end
 
-      sig { params(platform_height: T.nilable(T.any(Float, Integer)), has_stop_wall: T::Boolean).returns(CalculatorResponse) }
+      sig { params(platform_height: Float, has_stop_wall: T::Boolean).returns(CalculatorResponse) }
       def calculate_required_runout(platform_height, has_stop_wall: false)
         # EN 14960-1:2019 Section 4.2.11 (Lines 930-939) - Runout requirements
         # Line 934-935: The runout distance must be at least half the height of the slide's
         # highest platform (measured from ground level), with an absolute minimum of 300mm
         # Line 936: If a stop-wall is installed at the runout's end, an additional
         # 50cm must be added to the total runout length
-        return CalculatorResponse.new(value: 0, value_suffix: "m", breakdown: []) if platform_height.nil? || platform_height <= 0
+        return CalculatorResponse.new(value: 0, value_suffix: "m", breakdown: []) if platform_height <= 0
 
         # Get constants
         height_ratio = Constants::RUNOUT_CALCULATION_CONSTANTS[:platform_height_ratio]
@@ -64,14 +64,13 @@ module EN14960
         )
       end
 
-      sig { params(platform_height: T.nilable(T.any(Float, Integer)), user_height: T.nilable(T.any(Float, Integer)), containing_wall_height: T.nilable(T.any(Float, Integer)), has_permanent_roof: T.nilable(T::Boolean)).returns(T::Boolean) }
+      sig { params(platform_height: Float, user_height: Float, containing_wall_height: Float, has_permanent_roof: T::Boolean).returns(T::Boolean) }
       def meets_height_requirements?(platform_height, user_height, containing_wall_height, has_permanent_roof)
         # EN 14960-1:2019 Section 4.2.9 (Lines 854-887) - Containment requirements
         # Lines 859-860: Containing walls become mandatory for platforms exceeding 0.6m in height
         # Lines 861-862: Platforms between 0.6m and 3.0m need walls at least as tall as the maximum user height
         # Lines 863-864: Platforms between 3.0m and 6.0m require walls at least 1.25 times the maximum user height OR a permanent roof
         # Lines 865-866: Platforms over 6.0m must have both containing walls and a permanent roof structure
-        return false if platform_height.nil? || user_height.nil? || containing_wall_height.nil? || has_permanent_roof.nil?
 
         enhanced_multiplier = Constants::WALL_HEIGHT_CONSTANTS[:enhanced_height_multiplier]
         thresholds = Constants::SLIDE_HEIGHT_THRESHOLDS
@@ -92,12 +91,11 @@ module EN14960
         end
       end
 
-      sig { params(runout_length: T.nilable(T.any(Float, Integer)), platform_height: T.nilable(T.any(Float, Integer)), has_stop_wall: T::Boolean).returns(T::Boolean) }
+      sig { params(runout_length: Float, platform_height: Float, has_stop_wall: T::Boolean).returns(T::Boolean) }
       def meets_runout_requirements?(runout_length, platform_height, has_stop_wall: false)
         # EN 14960-1:2019 Section 4.2.11 (Lines 930-939) - Runout requirements
         # Lines 934-935: The runout area must extend at least half the platform's height
         # or 300mm (whichever is greater) to allow users to decelerate safely
-        return false if runout_length.nil? || platform_height.nil?
 
         required_runout = calculate_runout_value(platform_height, has_stop_wall: has_stop_wall)
         runout_length >= required_runout
@@ -112,10 +110,10 @@ module EN14960
         "#{height_ratio}% of platform height, minimum #{min_runout}mm"
       end
 
-      sig { params(platform_height: T.nilable(T.any(Float, Integer)), user_height: T.nilable(T.any(Float, Integer)), has_permanent_roof: T.nilable(T::Boolean)).returns(CalculatorResponse) }
+      sig { params(platform_height: Float, user_height: Float, has_permanent_roof: T.nilable(T::Boolean)).returns(CalculatorResponse) }
       def calculate_wall_height_requirements(platform_height, user_height, has_permanent_roof = nil)
         # EN 14960-1:2019 Section 4.2.9 (Lines 854-887) - Containment requirements
-        return CalculatorResponse.new(value: 0, value_suffix: "m", breakdown: []) if platform_height.nil? || user_height.nil? || platform_height <= 0 || user_height <= 0
+        return CalculatorResponse.new(value: 0, value_suffix: "m", breakdown: []) if platform_height <= 0 || user_height <= 0
 
         # Get requirement details and breakdown
         requirement_details = get_wall_height_requirement_details(platform_height, user_height, has_permanent_roof)
@@ -130,7 +128,7 @@ module EN14960
         )
       end
 
-      sig { params(platform_height: T.any(Float, Integer), user_height: T.any(Float, Integer), has_permanent_roof: T.nilable(T::Boolean)).returns(T::Hash[Symbol, T.untyped]) }
+      sig { params(platform_height: Float, user_height: Float, has_permanent_roof: T.nilable(T::Boolean)).returns(T::Hash[Symbol, T.untyped]) }
       def get_wall_height_requirement_details(platform_height, user_height, has_permanent_roof)
         thresholds = Constants::SLIDE_HEIGHT_THRESHOLDS
         enhanced_multiplier = Constants::WALL_HEIGHT_CONSTANTS[:enhanced_height_multiplier]
@@ -214,13 +212,13 @@ module EN14960
         end
       end
 
-      sig { params(platform_height: T.nilable(T.any(Float, Integer))).returns(T::Boolean) }
+      sig { params(platform_height: Float).returns(T::Boolean) }
       def requires_permanent_roof?(platform_height)
         # EN 14960-1:2019 Section 4.2.9 (Lines 865-866)
         # Inflatable structures with platforms higher than 6.0m must be equipped
         # with both containing walls and a permanent roof
         threshold = Constants::SLIDE_HEIGHT_THRESHOLDS[:enhanced_walls]
-        !platform_height.nil? && platform_height > threshold
+        platform_height > threshold
       end
 
       sig { returns(String) }
@@ -256,7 +254,7 @@ module EN14960
 
       private
 
-      sig { params(platform_height: T.any(Float, Integer), user_height: T.any(Float, Integer)).returns(T.any(Float, Integer)) }
+      sig { params(platform_height: Float, user_height: Float).returns(Float) }
       def extract_required_wall_height(platform_height, user_height)
         thresholds = Constants::SLIDE_HEIGHT_THRESHOLDS
         enhanced_multiplier = Constants::WALL_HEIGHT_CONSTANTS[:enhanced_height_multiplier]
