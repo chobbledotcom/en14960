@@ -10,6 +10,7 @@ A Ruby gem providing calculators and validators for BS EN 14960:2019 - the Briti
 - **Slide Safety**: Calculate runout distances and wall height requirements
 - **User Capacity**: Calculate safe user capacity based on play area and user heights
 - **Material Validation**: Validate material specifications against EN 14960 requirements
+- **Type Safety**: Full Sorbet type signatures for all public APIs ensuring type safety and better IDE support
 
 ## Installation
 
@@ -168,6 +169,35 @@ EN14960.height_categories
 EN14960::Constants::SLIDE_HEIGHT_THRESHOLDS
 EN14960::Constants::MATERIAL_STANDARDS
 EN14960::Constants::ANCHOR_CALCULATION_CONSTANTS
+```
+
+## Type Safety with Sorbet
+
+This gem includes full Sorbet type signatures for improved type safety and IDE support:
+
+```ruby
+# All public methods have type signatures
+sig { params(length: T.any(Float, Integer), width: T.any(Float, Integer), height: T.any(Float, Integer)).returns(CalculatorResponse) }
+def calculate_anchors(length:, width:, height:)
+  # ...
+end
+
+# Return types are strongly typed
+result = EN14960.calculate_anchors(length: 10, width: 8, height: 3)
+result.value        # Integer
+result.value_suffix # String
+result.breakdown    # Array[Array[String]]
+```
+
+The gem uses `T::Struct` for data classes providing runtime type checking:
+
+```ruby
+# CalculatorResponse is a typed struct
+class CalculatorResponse < T::Struct
+  const :value, T.any(Integer, Float, String, T::Array[T.untyped])
+  const :value_suffix, String, default: ""
+  const :breakdown, T::Array[T::Array[String]], default: []
+end
 ```
 
 ## EN 14960:2019 Compliance

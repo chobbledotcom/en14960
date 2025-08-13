@@ -1,7 +1,11 @@
 # frozen_string_literal: true
+# typed: strict
+
+require "sorbet-runtime"
 
 module EN14960
   module Constants
+    extend T::Sig
     # Height category constants based on EN 14960:2019
     HEIGHT_CATEGORIES = {
       1000 => {label: "1.0m (Young children)", max_users: :calculate_by_area},

@@ -1,10 +1,23 @@
 # frozen_string_literal: true
+# typed: strict
+
+require "sorbet-runtime"
 
 module EN14960
   module Validators
     module PlayAreaValidator
+      extend T::Sig
       extend self
 
+      sig {
+        params(
+          unit_length: T.nilable(T.any(Float, Integer)),
+          unit_width: T.nilable(T.any(Float, Integer)),
+          play_area_length: T.nilable(T.any(Float, Integer)),
+          play_area_width: T.nilable(T.any(Float, Integer)),
+          negative_adjustment_area: T.nilable(T.any(Float, Integer))
+        ).returns(T::Hash[Symbol, T.untyped])
+      }
       def validate(
         unit_length:,
         unit_width:,
@@ -61,6 +74,7 @@ module EN14960
 
       private
 
+      sig { params(valid: T::Boolean, errors: T::Array[String], measurements: T::Hash[Symbol, T.any(Float, Integer)]).returns(T::Hash[Symbol, T.untyped]) }
       def build_response(valid, errors, measurements = {})
         {
           valid: valid,
