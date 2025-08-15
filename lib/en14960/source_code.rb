@@ -9,15 +9,15 @@ module EN14960
     sig { params(method_name: Symbol, module_name: Module, additional_methods: T::Array[Symbol]).returns(String) }
     def self.get_method_source(method_name, module_name, additional_methods = [])
       base_dir = File.expand_path("..", __FILE__)
-      
+
       ruby_files = Dir.glob(File.join(base_dir, "**", "*.rb"))
-      
+
       file_path, line_number = find_method_in_files(ruby_files, method_name)
-      
+
       unless file_path
         raise StandardError, "Source code not available for method: #{method_name}"
       end
-      
+
       lines = File.readlines(file_path)
 
       constants_code = ""
@@ -115,7 +115,7 @@ module EN14960
 
       while current_line < lines.length
         line = lines[current_line]
-        if line.strip =~ /^def\s+(self\.)?#{Regexp.escape(method_name.to_s)}(\(|$|\s)/
+        if /^def\s+(self\.)?#{Regexp.escape(method_name.to_s)}(\(|$|\s)/.match?(line.strip)
           indent_level = line.index("def")
           method_lines << line
           current_line += 1

@@ -27,7 +27,6 @@ RSpec.describe EN14960::Validators::MaterialValidator do
         expect(described_class.valid_rope_diameter?(46.0)).to be false
         expect(described_class.valid_rope_diameter?(50.0)).to be false
       end
-
     end
   end
 
@@ -45,7 +44,6 @@ RSpec.describe EN14960::Validators::MaterialValidator do
         expect(described_class.valid_fabric_tensile_strength?(1849.0)).to be false
         expect(described_class.valid_fabric_tensile_strength?(1000.0)).to be false
       end
-
     end
   end
 
@@ -63,7 +61,6 @@ RSpec.describe EN14960::Validators::MaterialValidator do
         expect(described_class.valid_fabric_tear_strength?(349.0)).to be false
         expect(described_class.valid_fabric_tear_strength?(300.0)).to be false
       end
-
     end
   end
 
@@ -81,7 +78,6 @@ RSpec.describe EN14960::Validators::MaterialValidator do
         expect(described_class.valid_thread_tensile_strength?(87.0)).to be false
         expect(described_class.valid_thread_tensile_strength?(50.0)).to be false
       end
-
     end
   end
 
@@ -111,7 +107,6 @@ RSpec.describe EN14960::Validators::MaterialValidator do
         expect(described_class.valid_netting_mesh?(20.0, is_roof: true)).to be false
       end
     end
-
   end
 
   describe "requirement text methods" do

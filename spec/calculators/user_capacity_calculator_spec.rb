@@ -102,7 +102,6 @@ RSpec.describe EN14960::Calculators::UserCapacityCalculator do
       end
     end
 
-
     context "EN 14960:2019 compliance" do
       it "uses correct space requirements per user height" do
         # Test the underlying constants match the standard

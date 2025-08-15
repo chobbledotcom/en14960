@@ -9,7 +9,7 @@ module EN14960
 
     class << self
       extend T::Sig
-      
+
       sig { params(length: Float, width: Float, height: Float).returns(CalculatorResponse) }
       def calculate_anchors(length:, width:, height:)
         Calculators::AnchorCalculator.calculate(length: length, width: width, height: height)
