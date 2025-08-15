@@ -7,7 +7,7 @@ RSpec.describe EN14960::Calculators::AnchorCalculator do
     # EN 14960-1:2019 Line 441-442: "Each inflatable shall have at least six anchorage points"
     context "minimum anchor requirements" do
       it "returns at least 6 anchors for small inflatables" do
-        result = described_class.calculate(length: 1, width: 1, height: 1)
+        result = described_class.calculate(length: 1.0, width: 1.0, height: 1.0)
         expect(result.value).to eq(6)
 
         # Should include minimum requirement note
@@ -27,7 +27,7 @@ RSpec.describe EN14960::Calculators::AnchorCalculator do
       end
 
       it "does not apply minimum when calculated anchors exceed 6" do
-        result = described_class.calculate(length: 5, width: 4, height: 3)
+        result = described_class.calculate(length: 5.0, width: 4.0, height: 3.0)
         expect(result.value).to eq(8)
 
         # Should NOT include minimum requirement note
@@ -42,7 +42,7 @@ RSpec.describe EN14960::Calculators::AnchorCalculator do
     context "anchor calculation formula" do
       it "calculates anchors based on exposed surface area" do
         # Test a 5m × 4m × 3m inflatable
-        result = described_class.calculate(length: 5, width: 4, height: 3)
+        result = described_class.calculate(length: 5.0, width: 4.0, height: 3.0)
 
         # Front/back area: 4 × 3 = 12m²
         # Sides area: 5 × 3 = 15m²
@@ -54,7 +54,7 @@ RSpec.describe EN14960::Calculators::AnchorCalculator do
 
       it "calculates anchors for larger inflatables" do
         # Test a 10m × 8m × 4m inflatable
-        result = described_class.calculate(length: 10, width: 8, height: 4)
+        result = described_class.calculate(length: 10.0, width: 8.0, height: 4.0)
 
         # Front/back area: 8 × 4 = 32m²
         # Sides area: 10 × 4 = 40m²
@@ -68,19 +68,19 @@ RSpec.describe EN14960::Calculators::AnchorCalculator do
     # EN 14960-1:2019 Line 443: "The number of anchorage points shall be calculated in accordance with Annex A"
     context "formula breakdown" do
       it "provides detailed calculation breakdown" do
-        result = described_class.calculate(length: 5, width: 4, height: 3)
+        result = described_class.calculate(length: 5.0, width: 4.0, height: 3.0)
 
         expect(result.breakdown).to include(
-          ["Front/back area", "4m (W) × 3m (H) = 12m²"],
-          ["Sides area", "5m (L) × 3m (H) = 15m²"]
+          ["Front/back area", "4.0m (W) × 3.0m (H) = 12.0m²"],
+          ["Sides area", "5.0m (L) × 3.0m (H) = 15.0m²"]
         )
       end
 
       it "shows the calculation formulas" do
-        result = described_class.calculate(length: 5, width: 4, height: 3)
+        result = described_class.calculate(length: 5.0, width: 4.0, height: 3.0)
 
-        expect(result.breakdown[2][1]).to match(/^\(\(12 × 114\.0 \* 1\.5\) ÷ 1600\.0 = 2$/)
-        expect(result.breakdown[3][1]).to match(/^\(\(15 × 114\.0 \* 1\.5\) ÷ 1600\.0 = 2$/)
+        expect(result.breakdown[2][1]).to eq("((12.0 × 114.0 * 1.5) ÷ 1600.0 = 2")
+        expect(result.breakdown[3][1]).to eq("((15.0 × 114.0 * 1.5) ÷ 1600.0 = 2")
       end
     end
 
@@ -111,7 +111,7 @@ RSpec.describe EN14960::Calculators::AnchorCalculator do
     # EN 14960-1:2019 Line 443-444: "They shall be distributed around the perimeter"
     context "anchor distribution" do
       it "calculates anchors for all four sides" do
-        result = described_class.calculate(length: 5, width: 4, height: 3)
+        result = described_class.calculate(length: 5.0, width: 4.0, height: 3.0)
 
         breakdown = result.breakdown
         expect(breakdown[2][0]).to eq("Front & back anchor counts")
@@ -119,7 +119,7 @@ RSpec.describe EN14960::Calculators::AnchorCalculator do
       end
 
       it "multiplies by 2 for both front/back and left/right sides" do
-        result = described_class.calculate(length: 5, width: 4, height: 3)
+        result = described_class.calculate(length: 5.0, width: 4.0, height: 3.0)
 
         breakdown = result.breakdown
         expect(breakdown[4]).to eq(
@@ -132,16 +132,12 @@ RSpec.describe EN14960::Calculators::AnchorCalculator do
   describe ".calculate_required_anchors" do
     # EN 14960-1:2019 Lines 1201-1203: Number of anchors = Force / 1600N (rounded up)
     context "individual side calculations" do
-      it "returns 0 for nil area" do
-        expect(described_class.calculate_required_anchors(nil)).to eq(0)
-      end
-
       it "returns 0 for zero area" do
-        expect(described_class.calculate_required_anchors(0)).to eq(0)
+        expect(described_class.calculate_required_anchors(0.0)).to eq(0)
       end
 
       it "returns 0 for negative area" do
-        expect(described_class.calculate_required_anchors(-5)).to eq(0)
+        expect(described_class.calculate_required_anchors(-5.0)).to eq(0)
       end
 
       it "rounds up fractional anchor counts" do

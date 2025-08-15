@@ -17,7 +17,7 @@ module EN14960
 
         total_area = (length * width).round(2)
         negative_adjustment_area = negative_adjustment_area.to_f.abs
-        usable_area = [total_area - negative_adjustment_area, 0].max.round(2)
+        usable_area = [total_area - negative_adjustment_area, 0.0].max.round(2)
 
         breakdown = build_breakdown(length, width, total_area, negative_adjustment_area, usable_area)
         capacities = calculate_capacities(usable_area, max_user_height, breakdown)

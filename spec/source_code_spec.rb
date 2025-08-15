@@ -94,7 +94,7 @@ RSpec.describe EN14960::SourceCode do
           "  CONSTANT = { a: 1, b: 2 }.freeze\n",
           "  def method\n"
         ]
-        result = described_class.send(:extract_constant_definition, lines, "CONSTANT")
+        result = described_class.send(:extract_constant_definition, lines, :CONSTANT)
         expect(result).to include("CONSTANT = { a: 1, b: 2 }.freeze")
         # The current implementation includes the line after .freeze
         expect(result.strip.lines.first.strip).to eq("CONSTANT = { a: 1, b: 2 }.freeze")
@@ -108,7 +108,7 @@ RSpec.describe EN14960::SourceCode do
           "  }.freeze\n",
           "  def method\n"
         ]
-        result = described_class.send(:extract_constant_definition, lines, "MULTI_CONSTANT")
+        result = described_class.send(:extract_constant_definition, lines, :MULTI_CONSTANT)
         expect(result).to include("MULTI_CONSTANT = {")
         expect(result).to include("key1: 'value1'")
         expect(result).to include("}.freeze")
@@ -124,7 +124,7 @@ RSpec.describe EN14960::SourceCode do
           "  }.freeze\n",
           "  next_line\n"
         ]
-        result = described_class.send(:extract_constant_definition, lines, "NESTED")
+        result = described_class.send(:extract_constant_definition, lines, :NESTED)
         expect(result.count("{")).to eq(3)
         expect(result.count("}")).to eq(3)
         expect(result).to include("}.freeze")
@@ -138,7 +138,7 @@ RSpec.describe EN14960::SourceCode do
           "  }\n",
           "  next_line\n"
         ]
-        result = described_class.send(:extract_constant_definition, lines, "SIMPLE")
+        result = described_class.send(:extract_constant_definition, lines, :SIMPLE)
         expect(result).to include("SIMPLE = {")
         expect(result).to include("a: 1")
         expect(result.strip).to end_with("}")
@@ -154,7 +154,7 @@ RSpec.describe EN14960::SourceCode do
           "  end\n",
           "  def another\n"
         ]
-        result = described_class.send(:extract_method_lines, lines, 0, "simple")
+        result = described_class.send(:extract_method_lines, lines, 0, :simple)
         expect(result.join).to include("def simple")
         expect(result.join).to include("'result'")
         expect(result.join).to include("end")
@@ -169,14 +169,14 @@ RSpec.describe EN14960::SourceCode do
           "    end\n",
           "  end\n"
         ]
-        result = described_class.send(:extract_method_lines, lines, 0, "complex_method")
+        result = described_class.send(:extract_method_lines, lines, 0, :complex_method)
         expect(result.length).to eq(5)
         expect(result.join).to include("map do |n|")
       end
 
       it "returns error message when method not found" do
         lines = ["  def other_method\n", "  end\n"]
-        result = described_class.send(:extract_method_lines, lines, 0, "nonexistent")
+        result = described_class.send(:extract_method_lines, lines, 0, :nonexistent)
         expect(result).to eq(["Method definition not found"])
       end
 
@@ -186,10 +186,10 @@ RSpec.describe EN14960::SourceCode do
           "      42\n",
           "    end\n"
         ]
-        result = described_class.send(:extract_method_lines, lines, 0, "class_method")
-        # The current implementation looks for "def class_method" not "def self.class_method"
-        # This should fail with current implementation
-        expect(result).to eq(["Method definition not found"])
+        result = described_class.send(:extract_method_lines, lines, 0, :class_method)
+        # Now the implementation should handle "def self.class_method"
+        expect(result.join).to include("def self.class_method")
+        expect(result.join).to include("42")
       end
 
       it "finds methods when searching from the correct line" do
@@ -205,7 +205,7 @@ RSpec.describe EN14960::SourceCode do
           "end\n"
         ]
         # Search starting from line 5 (0-indexed) where method_two is defined
-        result = described_class.send(:extract_method_lines, lines, 5, "method_two")
+        result = described_class.send(:extract_method_lines, lines, 5, :method_two)
         expect(result.join).to include("def method_two")
         expect(result.join).to include("2")
       end

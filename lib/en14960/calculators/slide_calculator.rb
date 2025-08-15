@@ -14,7 +14,7 @@ module EN14960
       # Simple calculation method that returns just the numeric value
       sig { params(platform_height: Float, has_stop_wall: T::Boolean).returns(Float) }
       def calculate_runout_value(platform_height, has_stop_wall: false)
-        return 0 if platform_height <= 0
+        return 0.0 if platform_height <= 0
 
         height_ratio = Constants::RUNOUT_CALCULATION_CONSTANTS[:platform_height_ratio]
         minimum_runout = Constants::RUNOUT_CALCULATION_CONSTANTS[:minimum_runout_meters]

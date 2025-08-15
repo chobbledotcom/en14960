@@ -8,14 +8,16 @@ module EN14960
     extend T::Sig
     sig { params(method_name: Symbol, module_name: Module, additional_methods: T::Array[Symbol]).returns(String) }
     def self.get_method_source(method_name, module_name, additional_methods = [])
-      method_obj = module_name.method(method_name)
-      source_location = method_obj.source_location
-
-      return "Source code not available" unless source_location
-
-      file_path, line_number = source_location
-      return "Source file not found" unless File.exist?(file_path)
-
+      base_dir = File.expand_path("..", __FILE__)
+      
+      ruby_files = Dir.glob(File.join(base_dir, "**", "*.rb"))
+      
+      file_path, line_number = find_method_in_files(ruby_files, method_name)
+      
+      unless file_path
+        raise StandardError, "Source code not available for method: #{method_name}"
+      end
+      
       lines = File.readlines(file_path)
 
       constants_code = ""
@@ -32,10 +34,9 @@ module EN14960
 
       additional_methods.each do |additional_method|
         if module_name.respond_to?(additional_method)
-          additional_obj = module_name.method(additional_method)
-          additional_location = additional_obj.source_location
-          if additional_location && additional_location[0] == file_path
-            additional_lines = extract_method_lines(lines, additional_location[1] - 1, additional_method)
+          method_line_idx = lines.index { |line| line.strip =~ /^def\s+(self\.)?#{Regexp.escape(additional_method.to_s)}(\(|$|\s)/ }
+          if method_line_idx
+            additional_lines = extract_method_lines(lines, method_line_idx, additional_method)
             methods_code += strip_consistent_indentation(additional_lines.join("")) + "\n\n"
           end
         end
@@ -53,6 +54,23 @@ module EN14960
       output += methods_code
 
       output
+    end
+
+    sig { params(files: T::Array[String], method_name: Symbol).returns(T.nilable([String, Integer])) }
+    private_class_method def self.find_method_in_files(files, method_name)
+      files.each do |path|
+        if File.exist?(path)
+          content = File.read(path)
+          if content.match?(/def\s+(self\.)?#{Regexp.escape(method_name.to_s)}(\(|\s|$)/)
+            lines = File.readlines(path)
+            line_idx = lines.index { |line| line.strip =~ /^def\s+(self\.)?#{Regexp.escape(method_name.to_s)}(\(|$|\s)/ }
+            if line_idx
+              return [path, line_idx + 1]
+            end
+          end
+        end
+      end
+      nil
     end
 
     sig { params(module_name: Module, method_name: Symbol).returns(T::Array[Symbol]) }
@@ -97,7 +115,7 @@ module EN14960
 
       while current_line < lines.length
         line = lines[current_line]
-        if line.strip.start_with?("def #{method_name}")
+        if line.strip =~ /^def\s+(self\.)?#{Regexp.escape(method_name.to_s)}(\(|$|\s)/
           indent_level = line.index("def")
           method_lines << line
           current_line += 1
@@ -112,7 +130,7 @@ module EN14960
         line = lines[current_line]
         method_lines << line
 
-        if line.strip == "end" && (line.index(/\S/) || 0) <= indent_level
+        if line.strip == "end" && indent_level && (line.index(/\S/) || 0) <= indent_level
           break
         end
 
