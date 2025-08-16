@@ -33,7 +33,7 @@ module EN14960
         # highest platform (measured from ground level), with an absolute minimum of 300mm
         # Line 936: If a stop-wall is installed at the runout's end, an additional
         # 50cm must be added to the total runout length
-        return CalculatorResponse.new(value: 0, value_suffix: "m", breakdown: []) if platform_height <= 0
+        return CalculatorResponse.new(value: 0.0, value_suffix: "m", breakdown: []) if platform_height <= 0
 
         # Get constants
         height_ratio = Constants::RUNOUT_CALCULATION_CONSTANTS[:platform_height_ratio]
@@ -113,7 +113,7 @@ module EN14960
       sig { params(platform_height: Float, user_height: Float, has_permanent_roof: T.nilable(T::Boolean)).returns(CalculatorResponse) }
       def calculate_wall_height_requirements(platform_height, user_height, has_permanent_roof = nil)
         # EN 14960-1:2019 Section 4.2.9 (Lines 854-887) - Containment requirements
-        return CalculatorResponse.new(value: 0, value_suffix: "m", breakdown: []) if platform_height <= 0 || user_height <= 0
+        return CalculatorResponse.new(value: 0.0, value_suffix: "m", breakdown: []) if platform_height <= 0 || user_height <= 0
 
         # Get requirement details and breakdown
         requirement_details = get_wall_height_requirement_details(platform_height, user_height, has_permanent_roof)
@@ -261,14 +261,14 @@ module EN14960
 
         case platform_height
         when 0..thresholds[:no_walls_required]
-          0 # No walls required
+          0.0 # No walls required
         when (thresholds[:no_walls_required]..thresholds[:basic_walls])
           user_height # Equal to user height
         when (thresholds[:basic_walls]..thresholds[:enhanced_walls]),
              (thresholds[:enhanced_walls]..thresholds[:max_safe_height])
           (user_height * enhanced_multiplier).round(2) # 1.25× user height
         else
-          0 # Exceeds safe limits
+          0.0 # Exceeds safe limits
         end
       end
     end

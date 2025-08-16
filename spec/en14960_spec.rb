@@ -44,6 +44,18 @@ RSpec.describe EN14960 do
           ["Height range", "0.6m - 3.0m"]
         )
       end
+
+      it "returns 0.0 (not Integer 0) for platforms under 0.6m" do
+        result = described_class.calculate_wall_height(0.5, 1.5)
+
+        expect(result).to be_a(EN14960::CalculatorResponse)
+        expect(result.value).to eq(0.0)
+        expect(result.value).to be_a(Float)
+        expect(result.breakdown).to include(
+          ["Height range", "Under 0.6m"],
+          ["Requirement", "No containing walls required"]
+        )
+      end
     end
 
     describe ".calculate_user_capacity" do
