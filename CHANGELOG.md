@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2025-08-16
+
+### Fixed
+- Fixed TypeError when `calculate_wall_height` is called with platform_height < 0.6m
+  - Method now correctly returns Float 0.0 instead of Integer 0
+  - Added test coverage for the "no walls required" edge case
+
+## [0.4.0] - Previous Release
+
 ### Added
 - Full Sorbet type signatures for all public APIs
 - Runtime type checking with sorbet-runtime

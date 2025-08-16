@@ -80,6 +80,17 @@ RSpec.describe EN14960::Calculators::SlideCalculator do
 
   describe ".calculate_wall_height_requirements" do
     context "platform height ranges (EN 14960-1:2019)" do
+      it "returns 0.0 for platforms under 0.6m (no walls required)" do
+        result = described_class.calculate_wall_height_requirements(0.5, 1.5)
+
+        expect(result.value).to eq(0.0)
+        expect(result.value_suffix).to eq("m")
+        expect(result.breakdown).to include(
+          ["Height range", "Under 0.6m"],
+          ["Requirement", "No containing walls required"]
+        )
+      end
+
       it "requires 1× user height for platforms 0.6m - 3.0m" do
         result = described_class.calculate_wall_height_requirements(2.0, 1.5)
 
