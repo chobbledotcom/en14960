@@ -6,20 +6,39 @@ require "sorbet-runtime"
 module EN14960
   module SourceCode
     extend T::Sig
+
+    # Cache for file paths and method locations
+    @file_cache = T.let({}, T::Hash[Symbol, T.nilable([String, Integer])])
+    @ruby_files_cache = T.let(nil, T.nilable(T::Array[String]))
+    sig { void }
+    def self.clear_cache!
+      @file_cache = {}
+      @ruby_files_cache = nil
+    end
+
     sig { params(method_name: Symbol, module_name: Module, additional_methods: T::Array[Symbol]).returns(String) }
     def self.get_method_source(method_name, module_name, additional_methods = [])
       base_dir = File.expand_path("..", __FILE__)
 
-      ruby_files = Dir.glob(File.join(base_dir, "**", "*.rb"))
+      # Cache the ruby files list
+      @ruby_files_cache ||= Dir.glob(File.join(base_dir, "**", "*.rb"))
+      ruby_files = @ruby_files_cache
 
-      file_path, line_number = find_method_in_files(ruby_files, method_name)
+      # Check cache first
+      cache_result = @file_cache[method_name]
+      if cache_result
+        file_path, line_number = cache_result
+      else
+        file_path, line_number = find_method_in_files(ruby_files, method_name)
+        @file_cache[method_name] = [file_path, line_number]
+      end
 
       unless file_path
-        return "Source code not available"
+        raise StandardError, "Source code not available for method: #{method_name}"
       end
 
       unless File.exist?(file_path)
-        return "Source file not found"
+        raise StandardError, "Source file not found: #{file_path}"
       end
 
       lines = File.readlines(file_path, encoding: "UTF-8")

@@ -34,15 +34,16 @@ RSpec.describe EN14960::SourceCode do
     end
 
     context "when method is not found in source files" do
-      it "returns an appropriate message" do
+      it "raises an error with descriptive message" do
         # Try to get source for a method that doesn't exist in our codebase
-        result = described_class.get_method_source(:non_existent_method, EN14960)
-        expect(result).to eq("Source code not available")
+        expect {
+          described_class.get_method_source(:non_existent_method, EN14960)
+        }.to raise_error(StandardError, "Source code not available for method: non_existent_method")
       end
     end
 
     context "when trying to get source from a different module" do
-      it "returns source code not available for methods not in EN14960" do
+      it "raises error for methods not in EN14960" do
         # Create a module with a method that's not in our source files
         test_module = Module.new do
           def self.external_method
@@ -50,8 +51,9 @@ RSpec.describe EN14960::SourceCode do
           end
         end
 
-        result = described_class.get_method_source(:external_method, test_module)
-        expect(result).to eq("Source code not available")
+        expect {
+          described_class.get_method_source(:external_method, test_module)
+        }.to raise_error(StandardError, "Source code not available for method: external_method")
       end
     end
 
