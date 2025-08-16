@@ -62,7 +62,7 @@ module EN14960
     # @param negative_adjustment_area [Float] Area to subtract for obstacles
     # @return [CalculatorResponse] Response with capacity by user height
     sig { params(length: Float, width: Float, max_user_height: T.nilable(Float), negative_adjustment_area: Float).returns(CalculatorResponse) }
-    def calculate_user_capacity(length, width, max_user_height = nil, negative_adjustment_area = 0)
+    def calculate_user_capacity(length, width, max_user_height = nil, negative_adjustment_area = 0.0)
       Calculators::UserCapacityCalculator.calculate(
         length,
         width,

@@ -34,14 +34,9 @@ RSpec.describe EN14960::Calculators::SlideCalculator do
     end
 
     context "edge cases" do
-      it "handles nil platform height" do
-        result = described_class.calculate_runout_value(nil, has_stop_wall: false)
-        expect(result).to eq(0)
-      end
-
       it "handles negative platform height" do
         result = described_class.calculate_runout_value(-1.0, has_stop_wall: false)
-        expect(result).to eq(0)
+        expect(result).to eq(0.0)
       end
     end
   end
@@ -166,15 +161,7 @@ RSpec.describe EN14960::Calculators::SlideCalculator do
     end
 
     context "edge cases" do
-      it "handles nil platform height" do
-        result = described_class.calculate_wall_height_requirements(nil, 1.5)
-        expect(result.value).to eq(0)
-      end
-
-      it "handles nil user height" do
-        result = described_class.calculate_wall_height_requirements(2.0, nil)
-        expect(result.value).to eq(0)
-      end
+      # Removed nil tests as Sorbet enforces Float types
     end
   end
 

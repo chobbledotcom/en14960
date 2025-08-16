@@ -7,7 +7,7 @@ RSpec.describe EN14960::Calculators::UserCapacityCalculator do
     context "with valid dimensions" do
       it "returns CalculatorResponse with correct capacity and breakdown" do
         # 10m x 10m = 100m² area
-        result = described_class.calculate(10, 10)
+        result = described_class.calculate(10.0, 10.0)
 
         expect(result).to be_a(EN14960::CalculatorResponse)
         capacities = result.value
@@ -25,7 +25,7 @@ RSpec.describe EN14960::Calculators::UserCapacityCalculator do
 
       it "rounds down fractional users" do
         # 5m x 5m = 25m² area
-        result = described_class.calculate(5, 5)
+        result = described_class.calculate(5.0, 5.0)
         capacities = result.value
 
         expect(capacities[:users_1000mm]).to eq(25) # 25 ÷ 1.0 = 25
@@ -38,7 +38,7 @@ RSpec.describe EN14960::Calculators::UserCapacityCalculator do
     context "with negative adjustment area" do
       it "subtracts adjustment from total area" do
         # 10m x 10m = 100m², minus 20m² = 80m² usable
-        result = described_class.calculate(10, 10, nil, 20)
+        result = described_class.calculate(10.0, 10.0, nil, 20.0)
         capacities = result.value
 
         expect(capacities[:users_1000mm]).to eq(80) # 80 ÷ 1.0 = 80
@@ -55,7 +55,7 @@ RSpec.describe EN14960::Calculators::UserCapacityCalculator do
 
       it "handles adjustment larger than total area" do
         # 5m x 5m = 25m², minus 30m² = 0m² usable
-        result = described_class.calculate(5, 5, nil, 30)
+        result = described_class.calculate(5.0, 5.0, nil, 30.0)
         capacities = result.value
 
         expect(capacities[:users_1000mm]).to eq(0)
@@ -70,7 +70,7 @@ RSpec.describe EN14960::Calculators::UserCapacityCalculator do
 
       it "treats negative values as positive adjustments" do
         # Negative adjustment is converted to positive
-        result = described_class.calculate(10, 10, nil, -15)
+        result = described_class.calculate(10.0, 10.0, nil, -15.0)
         capacities = result.value
 
         expect(capacities[:users_1000mm]).to eq(85) # (100 - 15) ÷ 1.0 = 85
@@ -82,7 +82,7 @@ RSpec.describe EN14960::Calculators::UserCapacityCalculator do
 
     context "with maximum user height restriction" do
       it "only calculates capacity for allowed heights" do
-        result = described_class.calculate(10, 10, 1.2)
+        result = described_class.calculate(10.0, 10.0, 1.2)
         capacities = result.value
 
         expect(capacities[:users_1000mm]).to eq(100) # Allowed
@@ -92,7 +92,7 @@ RSpec.describe EN14960::Calculators::UserCapacityCalculator do
       end
 
       it "calculates all heights when max_user_height is nil" do
-        result = described_class.calculate(10, 10, nil)
+        result = described_class.calculate(10.0, 10.0, nil)
         capacities = result.value
 
         expect(capacities[:users_1000mm]).to eq(100)
@@ -102,39 +102,10 @@ RSpec.describe EN14960::Calculators::UserCapacityCalculator do
       end
     end
 
-    context "with invalid dimensions" do
-      it "returns default result when length is nil" do
-        result = described_class.calculate(nil, 10)
-
-        expect(result).to be_a(EN14960::CalculatorResponse)
-        expect(result.value).to eq({
-          users_1000mm: 0,
-          users_1200mm: 0,
-          users_1500mm: 0,
-          users_1800mm: 0
-        })
-        expect(result.breakdown).to include(
-          ["Invalid dimensions", ""]
-        )
-      end
-
-      it "returns default result when width is nil" do
-        result = described_class.calculate(10, nil)
-
-        expect(result).to be_a(EN14960::CalculatorResponse)
-        expect(result.value).to eq({
-          users_1000mm: 0,
-          users_1200mm: 0,
-          users_1500mm: 0,
-          users_1800mm: 0
-        })
-      end
-    end
-
     context "EN 14960:2019 compliance" do
       it "uses correct space requirements per user height" do
         # Test the underlying constants match the standard
-        result = described_class.calculate(2, 1) # 2m²
+        result = described_class.calculate(2.0, 1.0) # 2m²
 
         # 1000mm users: 1m² per user → 2 users
         expect(result.value[:users_1000mm]).to eq(2)

@@ -6,30 +6,26 @@ RSpec.describe EN14960::Validators::MaterialValidator do
   describe ".valid_rope_diameter?" do
     context "with valid diameters" do
       it "returns true for diameters within EN14960 range" do
-        expect(described_class.valid_rope_diameter?(18)).to be true
-        expect(described_class.valid_rope_diameter?(30)).to be true
-        expect(described_class.valid_rope_diameter?(45)).to be true
+        expect(described_class.valid_rope_diameter?(18.0)).to be true
+        expect(described_class.valid_rope_diameter?(30.0)).to be true
+        expect(described_class.valid_rope_diameter?(45.0)).to be true
       end
 
       it "returns true for boundary values" do
-        expect(described_class.valid_rope_diameter?(18)).to be true
-        expect(described_class.valid_rope_diameter?(45)).to be true
+        expect(described_class.valid_rope_diameter?(18.0)).to be true
+        expect(described_class.valid_rope_diameter?(45.0)).to be true
       end
     end
 
     context "with invalid diameters" do
       it "returns false for diameters below minimum" do
-        expect(described_class.valid_rope_diameter?(17)).to be false
-        expect(described_class.valid_rope_diameter?(10)).to be false
+        expect(described_class.valid_rope_diameter?(17.0)).to be false
+        expect(described_class.valid_rope_diameter?(10.0)).to be false
       end
 
       it "returns false for diameters above maximum" do
-        expect(described_class.valid_rope_diameter?(46)).to be false
-        expect(described_class.valid_rope_diameter?(50)).to be false
-      end
-
-      it "returns false for nil" do
-        expect(described_class.valid_rope_diameter?(nil)).to be false
+        expect(described_class.valid_rope_diameter?(46.0)).to be false
+        expect(described_class.valid_rope_diameter?(50.0)).to be false
       end
     end
   end
@@ -37,20 +33,16 @@ RSpec.describe EN14960::Validators::MaterialValidator do
   describe ".valid_fabric_tensile_strength?" do
     context "with valid strengths" do
       it "returns true for strength at or above minimum" do
-        expect(described_class.valid_fabric_tensile_strength?(1850)).to be true
-        expect(described_class.valid_fabric_tensile_strength?(2000)).to be true
-        expect(described_class.valid_fabric_tensile_strength?(3000)).to be true
+        expect(described_class.valid_fabric_tensile_strength?(1850.0)).to be true
+        expect(described_class.valid_fabric_tensile_strength?(2000.0)).to be true
+        expect(described_class.valid_fabric_tensile_strength?(3000.0)).to be true
       end
     end
 
     context "with invalid strengths" do
       it "returns false for strength below minimum" do
-        expect(described_class.valid_fabric_tensile_strength?(1849)).to be false
-        expect(described_class.valid_fabric_tensile_strength?(1000)).to be false
-      end
-
-      it "returns false for nil" do
-        expect(described_class.valid_fabric_tensile_strength?(nil)).to be false
+        expect(described_class.valid_fabric_tensile_strength?(1849.0)).to be false
+        expect(described_class.valid_fabric_tensile_strength?(1000.0)).to be false
       end
     end
   end
@@ -58,20 +50,16 @@ RSpec.describe EN14960::Validators::MaterialValidator do
   describe ".valid_fabric_tear_strength?" do
     context "with valid strengths" do
       it "returns true for strength at or above minimum" do
-        expect(described_class.valid_fabric_tear_strength?(350)).to be true
-        expect(described_class.valid_fabric_tear_strength?(500)).to be true
-        expect(described_class.valid_fabric_tear_strength?(1000)).to be true
+        expect(described_class.valid_fabric_tear_strength?(350.0)).to be true
+        expect(described_class.valid_fabric_tear_strength?(500.0)).to be true
+        expect(described_class.valid_fabric_tear_strength?(1000.0)).to be true
       end
     end
 
     context "with invalid strengths" do
       it "returns false for strength below minimum" do
-        expect(described_class.valid_fabric_tear_strength?(349)).to be false
-        expect(described_class.valid_fabric_tear_strength?(300)).to be false
-      end
-
-      it "returns false for nil" do
-        expect(described_class.valid_fabric_tear_strength?(nil)).to be false
+        expect(described_class.valid_fabric_tear_strength?(349.0)).to be false
+        expect(described_class.valid_fabric_tear_strength?(300.0)).to be false
       end
     end
   end
@@ -79,20 +67,16 @@ RSpec.describe EN14960::Validators::MaterialValidator do
   describe ".valid_thread_tensile_strength?" do
     context "with valid strengths" do
       it "returns true for strength at or above minimum" do
-        expect(described_class.valid_thread_tensile_strength?(88)).to be true
-        expect(described_class.valid_thread_tensile_strength?(100)).to be true
-        expect(described_class.valid_thread_tensile_strength?(200)).to be true
+        expect(described_class.valid_thread_tensile_strength?(88.0)).to be true
+        expect(described_class.valid_thread_tensile_strength?(100.0)).to be true
+        expect(described_class.valid_thread_tensile_strength?(200.0)).to be true
       end
     end
 
     context "with invalid strengths" do
       it "returns false for strength below minimum" do
-        expect(described_class.valid_thread_tensile_strength?(87)).to be false
-        expect(described_class.valid_thread_tensile_strength?(50)).to be false
-      end
-
-      it "returns false for nil" do
-        expect(described_class.valid_thread_tensile_strength?(nil)).to be false
+        expect(described_class.valid_thread_tensile_strength?(87.0)).to be false
+        expect(described_class.valid_thread_tensile_strength?(50.0)).to be false
       end
     end
   end
@@ -100,34 +84,27 @@ RSpec.describe EN14960::Validators::MaterialValidator do
   describe ".valid_netting_mesh?" do
     context "for vertical netting" do
       it "returns true for mesh at or below maximum" do
-        expect(described_class.valid_netting_mesh?(30, is_roof: false)).to be true
-        expect(described_class.valid_netting_mesh?(20, is_roof: false)).to be true
-        expect(described_class.valid_netting_mesh?(10, is_roof: false)).to be true
+        expect(described_class.valid_netting_mesh?(30.0, is_roof: false)).to be true
+        expect(described_class.valid_netting_mesh?(20.0, is_roof: false)).to be true
+        expect(described_class.valid_netting_mesh?(10.0, is_roof: false)).to be true
       end
 
       it "returns false for mesh above maximum" do
-        expect(described_class.valid_netting_mesh?(31, is_roof: false)).to be false
-        expect(described_class.valid_netting_mesh?(50, is_roof: false)).to be false
+        expect(described_class.valid_netting_mesh?(31.0, is_roof: false)).to be false
+        expect(described_class.valid_netting_mesh?(50.0, is_roof: false)).to be false
       end
     end
 
     context "for roof netting" do
       it "returns true for mesh at or below maximum" do
-        expect(described_class.valid_netting_mesh?(8, is_roof: true)).to be true
-        expect(described_class.valid_netting_mesh?(5, is_roof: true)).to be true
-        expect(described_class.valid_netting_mesh?(3, is_roof: true)).to be true
+        expect(described_class.valid_netting_mesh?(8.0, is_roof: true)).to be true
+        expect(described_class.valid_netting_mesh?(5.0, is_roof: true)).to be true
+        expect(described_class.valid_netting_mesh?(3.0, is_roof: true)).to be true
       end
 
       it "returns false for mesh above maximum" do
-        expect(described_class.valid_netting_mesh?(9, is_roof: true)).to be false
-        expect(described_class.valid_netting_mesh?(20, is_roof: true)).to be false
-      end
-    end
-
-    context "with nil mesh size" do
-      it "returns false" do
-        expect(described_class.valid_netting_mesh?(nil, is_roof: false)).to be false
-        expect(described_class.valid_netting_mesh?(nil, is_roof: true)).to be false
+        expect(described_class.valid_netting_mesh?(9.0, is_roof: true)).to be false
+        expect(described_class.valid_netting_mesh?(20.0, is_roof: true)).to be false
       end
     end
   end

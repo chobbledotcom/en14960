@@ -10,7 +10,7 @@ RSpec.describe EN14960 do
   describe "public API" do
     describe ".calculate_anchors" do
       it "calculates required anchors" do
-        result = described_class.calculate_anchors(length: 5, width: 4, height: 3)
+        result = described_class.calculate_anchors(length: 5.0, width: 4.0, height: 3.0)
 
         expect(result).to be_a(EN14960::CalculatorResponse)
         expect(result.value).to eq(8)
@@ -48,7 +48,7 @@ RSpec.describe EN14960 do
 
     describe ".calculate_user_capacity" do
       it "calculates user capacity" do
-        result = described_class.calculate_user_capacity(10, 8)
+        result = described_class.calculate_user_capacity(10.0, 8.0)
 
         expect(result).to be_a(EN14960::CalculatorResponse)
         expect(result.value).to be_a(Hash)
@@ -59,7 +59,7 @@ RSpec.describe EN14960 do
       end
 
       it "respects max user height" do
-        result = described_class.calculate_user_capacity(10, 8, 1.5)
+        result = described_class.calculate_user_capacity(10.0, 8.0, 1.5)
 
         expect(result.value[:users_1000mm]).to eq(80)
         expect(result.value[:users_1200mm]).to eq(60)
@@ -70,10 +70,9 @@ RSpec.describe EN14960 do
 
     describe ".valid_rope_diameter?" do
       it "validates rope diameter" do
-        expect(described_class.valid_rope_diameter?(20)).to be true
-        expect(described_class.valid_rope_diameter?(15)).to be false
-        expect(described_class.valid_rope_diameter?(50)).to be false
-        expect(described_class.valid_rope_diameter?(nil)).to be false
+        expect(described_class.valid_rope_diameter?(20.0)).to be true
+        expect(described_class.valid_rope_diameter?(15.0)).to be false
+        expect(described_class.valid_rope_diameter?(50.0)).to be false
       end
     end
 
