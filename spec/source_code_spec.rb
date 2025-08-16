@@ -33,22 +33,25 @@ RSpec.describe EN14960::SourceCode do
       end
     end
 
-    context "when method source location is not available" do
+    context "when method is not found in source files" do
       it "returns an appropriate message" do
-        # Mock a method with no source location
-        mock_module = Module.new
-        allow(mock_module).to receive(:method).and_return(double(source_location: nil))
-        result = described_class.get_method_source(:some_method, mock_module)
+        # Try to get source for a method that doesn't exist in our codebase
+        result = described_class.get_method_source(:non_existent_method, EN14960)
         expect(result).to eq("Source code not available")
       end
     end
 
-    context "when source file does not exist" do
-      it "returns an appropriate message" do
-        mock_module = Module.new
-        allow(mock_module).to receive(:method).and_return(double(source_location: ["/nonexistent/file.rb", 1]))
-        result = described_class.get_method_source(:some_method, mock_module)
-        expect(result).to eq("Source file not found")
+    context "when trying to get source from a different module" do
+      it "returns source code not available for methods not in EN14960" do
+        # Create a module with a method that's not in our source files
+        test_module = Module.new do
+          def self.external_method
+            "This method is not in EN14960 source files"
+          end
+        end
+
+        result = described_class.get_method_source(:external_method, test_module)
+        expect(result).to eq("Source code not available")
       end
     end
 
